@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Waves } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +38,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         <Link 
           href="/" 
-          className="font-brand font-bold text-lg tracking-wider flex items-center gap-2 group"
+          className="font-brand font-bold text-lg tracking-wider group"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
-            <Waves className="w-4 h-4" />
-          </div>
           <span><span className="text-foreground">April</span><span className="text-primary">wave</span></span>
         </Link>
 
