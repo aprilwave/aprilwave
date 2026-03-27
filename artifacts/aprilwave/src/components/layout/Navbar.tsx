@@ -43,8 +43,7 @@ export function Navbar() {
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
             <Waves className="w-4 h-4" />
           </div>
-          <span className="text-foreground">April</span>
-          <span className="text-primary">wave</span>
+          <span><span className="text-foreground">April</span><span className="text-primary">wave</span></span>
         </Link>
 
         {/* Desktop Nav */}

@@ -35,20 +35,20 @@ function makeNote(): FloatingNote {
 
 export function FloatingNotes() {
   const [notes, setNotes] = useState<FloatingNote[]>(() =>
-    Array.from({ length: 6 }, makeNote)
+    Array.from({ length: 3 }, makeNote)
   );
 
   useEffect(() => {
     const interval = setInterval(() => {
       const note = makeNote();
       setNotes(prev => {
-        const trimmed = prev.length >= 10 ? prev.slice(1) : prev;
+        const trimmed = prev.length >= 5 ? prev.slice(1) : prev;
         return [...trimmed, note];
       });
       setTimeout(() => {
         setNotes(prev => prev.filter(n => n.id !== note.id));
       }, note.lifetime + 1400);
-    }, 900 + Math.random() * 600);
+    }, 1800);
 
     return () => clearInterval(interval);
   }, []);

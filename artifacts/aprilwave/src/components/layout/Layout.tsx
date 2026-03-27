@@ -1,11 +1,13 @@
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { MouseGlow } from "@/components/MouseGlow";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col relative selection:bg-primary selection:text-primary-foreground">
+      <MouseGlow />
       <Navbar />
       <main className="flex-1 flex flex-col w-full relative z-10">
         <motion.div
