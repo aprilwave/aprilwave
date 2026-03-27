@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Aprilwave - Music Producer"
+version = "1.0.0"
+id = "artifacts/aprilwave"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23966
+
+[services.development]
+run = "pnpm --filter @workspace/aprilwave run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/aprilwave", "run", "build" ]
+publicDir = "artifacts/aprilwave/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23966"
+BASE_PATH = "/"

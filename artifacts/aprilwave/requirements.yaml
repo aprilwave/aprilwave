@@ -1,0 +1,28 @@
+packages:
+  "framer-motion": "For fluid, ethereal page transitions and scroll animations fitting the aesthetic"
+  "react-hook-form": "For robust contact form state management"
+  "@hookform/resolvers": "For Zod validation integration with react-hook-form"
+
+images:
+  - path: "artifacts/aprilwave/public/images/hero-bg.png"
+    description: "Abstract soft pastel gradient mesh blending dusty rose, coral red, and pale periwinkle blue, ethereal and airy, high resolution"
+    aspect_ratio: "16:9"
+  - path: "artifacts/aprilwave/public/images/profile.png"
+    description: "Artistic, moody silhouette of a musician wearing headphones in a studio bathed in soft blue and pink pastel lighting"
+    aspect_ratio: "1:1"
+  - path: "artifacts/aprilwave/public/images/audio-1.png"
+    description: "Abstract representation of sound waves in soft pastel blue and red hues, digital art"
+    aspect_ratio: "16:9"
+  - path: "artifacts/aprilwave/public/images/audio-2.png"
+    description: "Cinematic film score visual representation, ethereal light leaks, soft focus, pastel tones"
+    aspect_ratio: "16:9"
+  - path: "artifacts/aprilwave/public/images/audio-3.png"
+    description: "Game audio concept art, minimalist geometric shapes floating in a pastel gradient void"
+    aspect_ratio: "16:9"
+  - path: "artifacts/aprilwave/public/images/audio-4.png"
+    description: "Synthesizer knobs and cables macro shot, stylized with soft dusty rose and powder blue lighting"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Frontend only portfolio application. Contact form submission is simulated."
+  - "Routing handled via wouter. The theme relies heavily on custom CSS variables mapped to HSL values for the pastel aesthetic."
