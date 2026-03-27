@@ -4,6 +4,12 @@ const TOTAL_W = 3200;
 const H = 200;
 const MID = H / 2;
 
+// Wavelengths must divide evenly into TOTAL_W/2 (1600) for seamless loop.
+// Valid divisors: 1600, 800, 400, 320, 200, 160...
+const WL1 = 400;
+const WL2 = 320;
+const WL3 = 800;
+
 function buildPath(amplitude: number, wavelength: number, phase: number): string {
   let d = "";
   for (let x = 0; x <= TOTAL_W; x += 10) {
@@ -26,18 +32,14 @@ export function WaveformBG() {
       if (startTime === null) startTime = ts;
       const t = ts - startTime;
 
-      const amp1 = 55 + 12 * Math.sin(t * 0.00038);
-      const wl1  = 400 + 22 * Math.sin(t * 0.00027);
+      // Only vary amplitude — wavelengths stay fixed to keep loop seamless
+      const amp1 = 55 + 13 * Math.sin(t * 0.00038);
+      const amp2 = 32 + 9  * Math.sin(t * 0.00051 + 1.1);
+      const amp3 = 70 + 15 * Math.sin(t * 0.00042 + 0.7);
 
-      const amp2 = 32 + 8  * Math.sin(t * 0.00051 + 1.1);
-      const wl2  = 320 + 18 * Math.sin(t * 0.00033 + 2.4);
-
-      const amp3 = 70 + 14 * Math.sin(t * 0.00042 + 0.7);
-      const wl3  = 800 + 40 * Math.sin(t * 0.00022 + 3.8);
-
-      if (path1.current) path1.current.setAttribute("d", buildPath(amp1, wl1, 0));
-      if (path2.current) path2.current.setAttribute("d", buildPath(amp2, wl2, 1.8));
-      if (path3.current) path3.current.setAttribute("d", buildPath(amp3, wl3, 0.9));
+      if (path1.current) path1.current.setAttribute("d", buildPath(amp1, WL1, 0));
+      if (path2.current) path2.current.setAttribute("d", buildPath(amp2, WL2, 1.8));
+      if (path3.current) path3.current.setAttribute("d", buildPath(amp3, WL3, 0.9));
 
       rafRef.current = requestAnimationFrame(frame);
     }
