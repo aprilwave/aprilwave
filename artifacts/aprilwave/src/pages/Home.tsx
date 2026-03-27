@@ -18,9 +18,9 @@ export default function Home() {
           <FloatingNotes />
 
           {/* Waveform decoration */}
-          <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[3px] opacity-10 pointer-events-none">
-            {[18,28,42,55,38,65,80,62,45,72,58,40,68,50,35,58,70,48,30,52,38,60,44,28,50].map((h, i) => (
-              <div key={i} className="w-[3px] rounded-full bg-gradient-to-t from-primary to-secondary" style={{ height: `${h}px`, animationDelay: `${i * 0.08}s` }} />
+          <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[4px] opacity-40 pointer-events-none">
+            {[18,28,42,55,38,65,80,62,45,72,58,40,68,50,35,58,70,48,30,52,38,60,44,28,50,36,62,48,72,55,40,66,78,50,34,58].map((h, i) => (
+              <div key={i} className="waveform-bar w-[3px] rounded-full bg-gradient-to-t from-primary to-secondary" style={{ height: `${h}px`, animationDelay: `${i * 0.06}s` }} />
             ))}
           </div>
 

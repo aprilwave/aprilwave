@@ -187,4 +187,14 @@
   .note-float-slow {
     animation: note-float-slow 6s ease-in-out infinite;
   }
+
+  .waveform-bar {
+    animation: waveform-pulse 1.6s ease-in-out infinite;
+    transform-origin: bottom;
+  }
+}
+
+@keyframes waveform-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.2); }
 }
