@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { FloatingNotes } from "@/components/FloatingNotes";
+import { WaveformBG } from "@/components/WaveformBG";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
 import { Link } from "wouter";
@@ -17,14 +18,12 @@ export default function Home() {
 
           <FloatingNotes />
 
-          {/* Waveform decoration */}
-          <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[4px] opacity-40 pointer-events-none">
-            {[18,28,42,55,38,65,80,62,45,72,58,40,68,50,35,58,70,48,30,52,38,60,44,28,50,36,62,48,72,55,40,66,78,50,34,58].map((h, i) => (
-              <div key={i} className="waveform-bar w-[3px] rounded-full bg-gradient-to-t from-primary to-secondary" style={{ height: `${h}px`, animationDelay: `${i * 0.06}s` }} />
-            ))}
-          </div>
-
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
+        </div>
+
+        {/* Waveform sits above the gradient fade, below content */}
+        <div className="absolute inset-0 z-[5] overflow-hidden pointer-events-none">
+          <WaveformBG />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">

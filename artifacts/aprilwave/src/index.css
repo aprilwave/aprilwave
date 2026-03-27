@@ -198,3 +198,8 @@
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(0.2); }
 }
+
+@keyframes wave-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
