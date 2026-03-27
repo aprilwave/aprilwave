@@ -39,7 +39,10 @@ export default function Contact() {
 
   return (
     <Layout>
-      <section className="pt-32 pb-24 px-6 max-w-7xl mx-auto w-full flex-1">
+      {/* Decorative blurred blobs */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-b from-primary/10 via-secondary/5 to-transparent blur-[100px] pointer-events-none -z-10" />
+
+      <section className="pt-32 pb-24 px-6 max-w-7xl mx-auto w-full flex-1 relative z-10">
         
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           

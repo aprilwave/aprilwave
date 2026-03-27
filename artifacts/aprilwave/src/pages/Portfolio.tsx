@@ -68,7 +68,10 @@ export default function Portfolio() {
 
   return (
     <Layout>
-      <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full">
+      {/* Decorative blurred blobs */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-b from-primary/10 via-secondary/5 to-transparent blur-[100px] pointer-events-none -z-10" />
+      
+      <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full relative z-10">
         
         <div className="text-center max-w-2xl mx-auto mb-16">
           <motion.h1 

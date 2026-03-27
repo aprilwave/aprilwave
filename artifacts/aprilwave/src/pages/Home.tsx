@@ -13,9 +13,9 @@ export default function Home() {
           <img 
             src={`${import.meta.env.BASE_URL}images/hero-bg.png`} 
             alt="Abstract pastel background" 
-            className="w-full h-full object-cover opacity-60 mix-blend-multiply"
+            className="w-full h-full object-cover opacity-20 mix-blend-screen"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
@@ -31,6 +31,15 @@ export default function Home() {
             </span>
             Available for exciting new projects
           </motion.div>
+
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-foreground/90"
+          >
+            Aprilwave
+          </motion.h2>
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
