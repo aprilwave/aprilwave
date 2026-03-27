@@ -137,13 +137,13 @@
 }
 
 @keyframes note-float {
-  0%, 100% { transform: translateY(0px) rotate(-5deg); opacity: 0.12; }
-  50%       { transform: translateY(-18px) rotate(5deg); opacity: 0.22; }
+  0%, 100% { transform: translateY(0px) rotate(-5deg); opacity: 0.32; }
+  50%       { transform: translateY(-18px) rotate(5deg); opacity: 0.42; }
 }
 
 @keyframes note-float-slow {
-  0%, 100% { transform: translateY(0px) rotate(8deg); opacity: 0.08; }
-  50%       { transform: translateY(-24px) rotate(-4deg); opacity: 0.18; }
+  0%, 100% { transform: translateY(0px) rotate(8deg); opacity: 0.28; }
+  50%       { transform: translateY(-24px) rotate(-4deg); opacity: 0.38; }
 }
 
 @keyframes waveform-pulse {

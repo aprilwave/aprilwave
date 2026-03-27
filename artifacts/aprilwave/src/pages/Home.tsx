@@ -15,12 +15,12 @@ export default function Home() {
           <div className="aurora-blob-3 absolute bottom-[-10%] left-[25%] w-[50%] h-[60%] rounded-full bg-[radial-gradient(ellipse,hsl(262_60%_75%/0.22),transparent_70%)] blur-3xl" />
 
           {/* Floating musical notes */}
-          <span className="note-float absolute top-[18%] left-[8%] text-5xl text-primary/20 select-none pointer-events-none" style={{ animationDelay: "0s" }}>♪</span>
-          <span className="note-float-slow absolute top-[30%] right-[10%] text-4xl text-secondary/20 select-none pointer-events-none" style={{ animationDelay: "1.5s" }}>♫</span>
-          <span className="note-float absolute bottom-[28%] left-[14%] text-3xl text-accent/20 select-none pointer-events-none" style={{ animationDelay: "0.8s" }}>♩</span>
-          <span className="note-float-slow absolute top-[12%] right-[22%] text-6xl text-primary/15 select-none pointer-events-none" style={{ animationDelay: "2.2s" }}>♬</span>
-          <span className="note-float absolute bottom-[35%] right-[7%] text-3xl text-secondary/15 select-none pointer-events-none" style={{ animationDelay: "3s" }}>♩</span>
-          <span className="note-float-slow absolute top-[55%] left-[5%] text-4xl text-accent/15 select-none pointer-events-none" style={{ animationDelay: "1s" }}>♪</span>
+          <span className="note-float absolute top-[18%] left-[8%] text-5xl text-primary/40 select-none pointer-events-none" style={{ animationDelay: "0s" }}>♪</span>
+          <span className="note-float-slow absolute top-[30%] right-[10%] text-4xl text-secondary/40 select-none pointer-events-none" style={{ animationDelay: "1.5s" }}>♫</span>
+          <span className="note-float absolute bottom-[28%] left-[14%] text-3xl text-accent/40 select-none pointer-events-none" style={{ animationDelay: "0.8s" }}>♩</span>
+          <span className="note-float-slow absolute top-[12%] right-[22%] text-6xl text-primary/35 select-none pointer-events-none" style={{ animationDelay: "2.2s" }}>♬</span>
+          <span className="note-float absolute bottom-[35%] right-[7%] text-3xl text-secondary/35 select-none pointer-events-none" style={{ animationDelay: "3s" }}>♩</span>
+          <span className="note-float-slow absolute top-[55%] left-[5%] text-4xl text-accent/35 select-none pointer-events-none" style={{ animationDelay: "1s" }}>♪</span>
 
           {/* Waveform decoration */}
           <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[3px] opacity-10 pointer-events-none">
@@ -33,11 +33,20 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0 }}
+            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-6"
+          >
+            Aprilwave
+          </motion.h2>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium mb-6 text-foreground/80"
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium mb-8 text-foreground/80"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -46,20 +55,11 @@ export default function Home() {
             Available for exciting new projects
           </motion.div>
 
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
-          >
-            Aprilwave
-          </motion.h2>
-
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="font-display text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-6 text-foreground"
+            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 text-foreground"
           >
             I shape silence <br/>
             into sound.
