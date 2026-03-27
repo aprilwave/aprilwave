@@ -151,7 +151,7 @@ export default function Portfolio() {
 
                 {/* Category Tag */}
                 <div className="absolute top-4 left-4 z-20">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md text-foreground shadow-sm">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-background/60 backdrop-blur-md text-foreground border border-border/50 shadow-sm">
                     {item.category}
                   </span>
                 </div>
