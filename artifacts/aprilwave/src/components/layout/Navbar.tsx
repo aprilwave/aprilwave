@@ -38,13 +38,13 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         <Link 
           href="/" 
-          className="font-display font-bold text-2xl tracking-tighter flex items-center gap-2 group"
+          className="font-brand font-bold text-lg tracking-wider flex items-center gap-2 group"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
             <Waves className="w-4 h-4" />
           </div>
           <span className="text-foreground">April</span>
-          <span className="text-primary -ml-1">wave</span>
+          <span className="text-primary">wave</span>
         </Link>
 
         {/* Desktop Nav */}

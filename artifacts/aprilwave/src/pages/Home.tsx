@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { FloatingNotes } from "@/components/FloatingNotes";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
 import { Link } from "wouter";
@@ -14,13 +15,7 @@ export default function Home() {
           <div className="aurora-blob-2 absolute top-[10%] right-[-15%] w-[55%] h-[65%] rounded-full bg-[radial-gradient(ellipse,hsl(221_83%_75%/0.25),transparent_70%)] blur-3xl" />
           <div className="aurora-blob-3 absolute bottom-[-10%] left-[25%] w-[50%] h-[60%] rounded-full bg-[radial-gradient(ellipse,hsl(262_60%_75%/0.22),transparent_70%)] blur-3xl" />
 
-          {/* Floating musical notes */}
-          <span className="note-float absolute top-[18%] left-[8%] text-5xl text-primary/40 select-none pointer-events-none" style={{ animationDelay: "0s" }}>♪</span>
-          <span className="note-float-slow absolute top-[30%] right-[10%] text-4xl text-secondary/40 select-none pointer-events-none" style={{ animationDelay: "1.5s" }}>♫</span>
-          <span className="note-float absolute bottom-[28%] left-[14%] text-3xl text-accent/40 select-none pointer-events-none" style={{ animationDelay: "0.8s" }}>♩</span>
-          <span className="note-float-slow absolute top-[12%] right-[22%] text-6xl text-primary/35 select-none pointer-events-none" style={{ animationDelay: "2.2s" }}>♬</span>
-          <span className="note-float absolute bottom-[35%] right-[7%] text-3xl text-secondary/35 select-none pointer-events-none" style={{ animationDelay: "3s" }}>♩</span>
-          <span className="note-float-slow absolute top-[55%] left-[5%] text-4xl text-accent/35 select-none pointer-events-none" style={{ animationDelay: "1s" }}>♪</span>
+          <FloatingNotes />
 
           {/* Waveform decoration */}
           <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[3px] opacity-10 pointer-events-none">
@@ -61,8 +56,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-display text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 text-foreground"
           >
-            I shape silence <br/>
-            into sound.
+            I shape silence into sound.
           </motion.h1>
 
           <motion.p 
