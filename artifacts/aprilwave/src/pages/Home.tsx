@@ -8,14 +8,12 @@ export default function Home() {
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
-        {/* Background Mesh */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={`${import.meta.env.BASE_URL}images/hero-bg.png`} 
-            alt="Abstract pastel background" 
-            className="w-full h-full object-cover opacity-20 mix-blend-screen"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background" />
+        {/* Animated Aurora Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="aurora-blob-1 absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full bg-[radial-gradient(ellipse,hsl(348_83%_70%/0.25),transparent_70%)] blur-3xl" />
+          <div className="aurora-blob-2 absolute top-[10%] right-[-15%] w-[55%] h-[65%] rounded-full bg-[radial-gradient(ellipse,hsl(221_83%_75%/0.22),transparent_70%)] blur-3xl" />
+          <div className="aurora-blob-3 absolute bottom-[-10%] left-[25%] w-[50%] h-[60%] rounded-full bg-[radial-gradient(ellipse,hsl(262_60%_75%/0.18),transparent_70%)] blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
@@ -36,7 +34,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-foreground/90"
+            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
           >
             Aprilwave
           </motion.h2>
@@ -47,7 +45,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-display text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-6 text-foreground"
           >
-            I shape <span className="text-gradient">silence</span> <br/>
+            I shape silence <br/>
             into sound.
           </motion.h1>
 
