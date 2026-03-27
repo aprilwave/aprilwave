@@ -10,27 +10,34 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
         {/* Animated Aurora Background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="aurora-blob-1 absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full bg-[radial-gradient(ellipse,hsl(348_83%_70%/0.25),transparent_70%)] blur-3xl" />
-          <div className="aurora-blob-2 absolute top-[10%] right-[-15%] w-[55%] h-[65%] rounded-full bg-[radial-gradient(ellipse,hsl(221_83%_75%/0.22),transparent_70%)] blur-3xl" />
-          <div className="aurora-blob-3 absolute bottom-[-10%] left-[25%] w-[50%] h-[60%] rounded-full bg-[radial-gradient(ellipse,hsl(262_60%_75%/0.18),transparent_70%)] blur-3xl" />
+          <div className="aurora-blob-1 absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full bg-[radial-gradient(ellipse,hsl(348_83%_70%/0.28),transparent_70%)] blur-3xl" />
+          <div className="aurora-blob-2 absolute top-[10%] right-[-15%] w-[55%] h-[65%] rounded-full bg-[radial-gradient(ellipse,hsl(221_83%_75%/0.25),transparent_70%)] blur-3xl" />
+          <div className="aurora-blob-3 absolute bottom-[-10%] left-[25%] w-[50%] h-[60%] rounded-full bg-[radial-gradient(ellipse,hsl(262_60%_75%/0.22),transparent_70%)] blur-3xl" />
+
+          {/* Floating musical notes */}
+          <span className="note-float absolute top-[18%] left-[8%] text-5xl text-primary/20 select-none pointer-events-none" style={{ animationDelay: "0s" }}>♪</span>
+          <span className="note-float-slow absolute top-[30%] right-[10%] text-4xl text-secondary/20 select-none pointer-events-none" style={{ animationDelay: "1.5s" }}>♫</span>
+          <span className="note-float absolute bottom-[28%] left-[14%] text-3xl text-accent/20 select-none pointer-events-none" style={{ animationDelay: "0.8s" }}>♩</span>
+          <span className="note-float-slow absolute top-[12%] right-[22%] text-6xl text-primary/15 select-none pointer-events-none" style={{ animationDelay: "2.2s" }}>♬</span>
+          <span className="note-float absolute bottom-[35%] right-[7%] text-3xl text-secondary/15 select-none pointer-events-none" style={{ animationDelay: "3s" }}>♩</span>
+          <span className="note-float-slow absolute top-[55%] left-[5%] text-4xl text-accent/15 select-none pointer-events-none" style={{ animationDelay: "1s" }}>♪</span>
+
+          {/* Waveform decoration */}
+          <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 flex items-end gap-[3px] opacity-10 pointer-events-none">
+            {[18,28,42,55,38,65,80,62,45,72,58,40,68,50,35,58,70,48,30,52,38,60,44,28,50].map((h, i) => (
+              <div key={i} className="w-[3px] rounded-full bg-gradient-to-t from-primary to-secondary" style={{ height: `${h}px`, animationDelay: `${i * 0.08}s` }} />
+            ))}
+          </div>
+
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0 }}
-            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-6"
-          >
-            Aprilwave
-          </motion.h2>
-
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium mb-8 text-foreground/80"
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium mb-6 text-foreground/80"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -38,6 +45,15 @@ export default function Home() {
             </span>
             Available for exciting new projects
           </motion.div>
+
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
+          >
+            Aprilwave
+          </motion.h2>
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -53,9 +69,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed tracking-widest uppercase"
           >
-            Music Producer | Composer | Game Audio | Sound Design
+            Music Producer · Composer · Game Audio · Sound Design
           </motion.p>
 
           <motion.div 
