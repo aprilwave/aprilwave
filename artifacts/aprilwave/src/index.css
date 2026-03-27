@@ -123,20 +123,23 @@
 
 @keyframes blob-move-1 {
   0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(8%, -12%) scale(1.1); }
-  66%       { transform: translate(-6%, 8%) scale(0.95); }
+  25%       { transform: translate(15%, -18%) scale(1.2); }
+  50%       { transform: translate(-12%, 14%) scale(0.9); }
+  75%       { transform: translate(8%, -10%) scale(1.1); }
 }
 
 @keyframes blob-move-2 {
   0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(-10%, 8%) scale(1.05); }
-  66%       { transform: translate(12%, -6%) scale(1.1); }
+  25%       { transform: translate(-16%, 12%) scale(1.15); }
+  50%       { transform: translate(14%, -16%) scale(1.05); }
+  75%       { transform: translate(-8%, 8%) scale(1.1); }
 }
 
 @keyframes blob-move-3 {
   0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(6%, 10%) scale(0.9); }
-  66%       { transform: translate(-8%, -10%) scale(1.05); }
+  25%       { transform: translate(10%, 16%) scale(0.95); }
+  50%       { transform: translate(-10%, -14%) scale(1.15); }
+  75%       { transform: translate(12%, 6%) scale(0.9); }
 }
 
 @layer utilities {
@@ -157,14 +160,14 @@
   }
 
   .aurora-blob-1 {
-    animation: blob-move-1 12s ease-in-out infinite;
+    animation: blob-move-1 6s ease-in-out infinite;
   }
 
   .aurora-blob-2 {
-    animation: blob-move-2 16s ease-in-out infinite;
+    animation: blob-move-2 7s ease-in-out infinite;
   }
 
   .aurora-blob-3 {
-    animation: blob-move-3 10s ease-in-out infinite;
+    animation: blob-move-3 5s ease-in-out infinite;
   }
 }

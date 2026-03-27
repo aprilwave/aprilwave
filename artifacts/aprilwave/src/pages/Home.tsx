@@ -17,10 +17,19 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0 }}
+            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-6"
+          >
+            Aprilwave
+          </motion.h2>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium mb-8 text-foreground/80"
           >
             <span className="relative flex h-2 w-2">
@@ -29,15 +38,6 @@ export default function Home() {
             </span>
             Available for exciting new projects
           </motion.div>
-
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
-          >
-            Aprilwave
-          </motion.h2>
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
