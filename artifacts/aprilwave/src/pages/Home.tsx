@@ -55,7 +55,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-display text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 text-foreground"
           >
-            I shape silence into sound.
+            I shape silence into emotion.
           </motion.h1>
 
           <motion.p 
