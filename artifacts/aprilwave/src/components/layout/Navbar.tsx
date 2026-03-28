@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/", label: "About" },
   { href: "/portfolio", label: "Portfolio" },
-  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -56,7 +55,7 @@ export function Navbar() {
             transition={{ duration: 0.35, ease: "easeOut" }}
             style={{ display: "inline-block" }}
           >
-            <span className="text-foreground">April</span><span className="text-primary">wave</span>
+            <span className="text-gradient">Aprilwave</span>
           </motion.span>
         </Link>
 

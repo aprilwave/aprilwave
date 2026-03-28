@@ -63,7 +63,7 @@ export function GlowLine() {
       if (blurMidRef.current)  blurMidRef.current.setAttribute("stdDeviation", String(blurMid));
 
       // Pulse gradient stop opacity: 0.18 ± 0.08
-      const gradStrength = 0.18 + 0.08 * Math.sin(t * 0.00042 + 0.6);
+      const gradStrength = 0.30 + 0.10 * Math.sin(t * 0.00042 + 0.6);
       if (gradRef.current) {
         const stops = gradRef.current.querySelectorAll("stop");
         stops[1]?.setAttribute("stop-opacity", String(gradStrength * 0.7));
@@ -100,10 +100,10 @@ export function GlowLine() {
           {/* Vertical gradient for the ambient glow rect — fills up/down from the line */}
           <linearGradient id="glowAreaGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox" ref={gradRef}>
             <stop offset="0%"   stopColor="transparent" stopOpacity="0" />
-            <stop offset="28%"  stopColor="hsl(221 83% 82%)" stopOpacity="0.12" />
-            <stop offset="50%"  stopColor="hsl(348 83% 78%)" stopOpacity="0.18" />
-            <stop offset="52%"  stopColor="hsl(348 83% 78%)" stopOpacity="0.18" />
-            <stop offset="72%"  stopColor="hsl(262 60% 82%)" stopOpacity="0.12" />
+            <stop offset="28%"  stopColor="hsl(221 83% 82%)" stopOpacity="0.22" />
+            <stop offset="50%"  stopColor="hsl(348 83% 78%)" stopOpacity="0.32" />
+            <stop offset="52%"  stopColor="hsl(348 83% 78%)" stopOpacity="0.32" />
+            <stop offset="72%"  stopColor="hsl(262 60% 82%)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="transparent" stopOpacity="0" />
           </linearGradient>
 
@@ -126,8 +126,8 @@ export function GlowLine() {
           ref={ambientRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="60"
-          opacity="0.18"
+          strokeWidth="100"
+          opacity="0.28"
           filter="url(#glowAmbient)"
         />
 
@@ -136,8 +136,8 @@ export function GlowLine() {
           ref={midRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="12"
-          opacity="0.45"
+          strokeWidth="22"
+          opacity="0.55"
           filter="url(#glowMid)"
         />
 
@@ -146,8 +146,8 @@ export function GlowLine() {
           ref={coreRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="2"
-          opacity="0.75"
+          strokeWidth="3.5"
+          opacity="0.90"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
