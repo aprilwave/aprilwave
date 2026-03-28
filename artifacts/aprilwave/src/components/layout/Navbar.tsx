@@ -10,7 +10,7 @@ const links = [
 ];
 
 export function Navbar() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [heroPast, setHeroPast] = useState(false);
@@ -19,23 +19,35 @@ export function Navbar() {
     const handleScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 20);
-      // Show navbar logo when scrolled far enough that hero Aprilwave is off screen
-      // Hero is 90vh; title is roughly centered, so it leaves view around 35-40vh scroll
       setHeroPast(y > window.innerHeight * 0.38);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
-  // Logo is visible: always on non-home pages, or when scrolled past hero on home
   const logoVisible = location !== "/" || heroPast;
+
+  // "About" scrolls to the about section on the home page
+  function handleAboutClick(e: React.MouseEvent) {
+    if (location === "/") {
+      e.preventDefault();
+      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      e.preventDefault();
+      navigate("/");
+      // After navigation, wait a tick then scroll
+      setTimeout(() => {
+        document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+      }, 120);
+    }
+  }
+
+  const isContact = location === "/contact";
 
   return (
     <header
@@ -62,11 +74,13 @@ export function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           {links.map((link) => {
-            const isActive = location === link.href;
+            const isActive = location === link.href && !isContact;
+            const isAbout = link.label === "About";
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={isAbout ? handleAboutClick : undefined}
                 className={cn(
                   "relative font-medium text-sm transition-colors hover:text-foreground",
                   isActive ? "text-foreground" : "text-muted-foreground"
@@ -83,11 +97,26 @@ export function Navbar() {
               </Link>
             );
           })}
+
+          {/* Let's Talk — participates in the shared underline animation */}
           <Link
             href="/contact"
-            className="px-5 py-2.5 rounded-full bg-foreground text-background font-medium text-sm hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5 duration-300"
+            className={cn(
+              "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden",
+              isContact
+                ? "text-white shadow-primary/30"
+                : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
+            )}
           >
-            Let's Talk
+            {/* Gradient fill slides in from the underline when contact is active */}
+            {isContact && (
+              <motion.span
+                layoutId="navbar-indicator"
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary"
+                transition={{ type: "spring", bounce: 0.25, duration: 0.55 }}
+              />
+            )}
+            <span className="relative z-10">Let's Talk</span>
           </Link>
         </nav>
 
@@ -110,18 +139,28 @@ export function Navbar() {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border p-6 shadow-xl md:hidden flex flex-col gap-6"
           >
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "font-display text-2xl font-medium",
-                  location === link.href ? "text-primary" : "text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isAbout = link.label === "About";
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={isAbout ? handleAboutClick : undefined}
+                  className={cn(
+                    "font-display text-2xl font-medium",
+                    location === link.href ? "text-primary" : "text-foreground"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <Link
+              href="/contact"
+              className="font-display text-2xl font-medium text-foreground"
+            >
+              Let's Talk
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

@@ -73,7 +73,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="py-24 relative bg-background">
+      <section id="about" className="py-24 relative bg-background">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-16 items-center">
 
