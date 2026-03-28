@@ -125,7 +125,7 @@ export default function Contact() {
                   <label className="text-sm font-medium text-foreground ml-1">Name</label>
                   <input 
                     {...register("name")}
-                    className="w-full px-4 py-3 rounded-xl bg-white/80 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
+                    className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground"
                     placeholder="Jane Doe"
                   />
                   {errors.name && <p className="text-xs text-destructive ml-1">{errors.name.message}</p>}
@@ -136,7 +136,7 @@ export default function Contact() {
                   <input 
                     {...register("email")}
                     type="email"
-                    className="w-full px-4 py-3 rounded-xl bg-white/80 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground"
+                    className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground"
                     placeholder="jane@example.com"
                   />
                   {errors.email && <p className="text-xs text-destructive ml-1">{errors.email.message}</p>}
@@ -147,7 +147,7 @@ export default function Contact() {
                 <label className="text-sm font-medium text-foreground ml-1">Subject</label>
                 <select 
                   {...register("subject")}
-                  className="w-full px-4 py-3 rounded-xl bg-white/80 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground appearance-none"
+                  className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground appearance-none"
                 >
                   <option value="">Select a subject...</option>
                   <option value="Game Audio">Game Audio</option>
@@ -164,7 +164,7 @@ export default function Contact() {
                 <textarea 
                   {...register("message")}
                   rows={5}
-                  className="w-full px-4 py-3 rounded-xl bg-white/80 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground resize-none"
                   placeholder="Tell me about your project..."
                 />
                 {errors.message && <p className="text-xs text-destructive ml-1">{errors.message.message}</p>}
