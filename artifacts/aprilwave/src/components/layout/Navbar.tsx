@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -14,6 +14,12 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [heroPast, setHeroPast] = useState(false);
+
+  // Single indicator measured from the nav container — guarantees horizontal-only motion
+  const navRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+
+  const isContact = location === "/contact";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,9 +36,22 @@ export function Navbar() {
     setIsOpen(false);
   }, [location]);
 
+  // Measure the active nav link and position the indicator
+  useEffect(() => {
+    if (!navRef.current || isContact) {
+      setIndicator(null);
+      return;
+    }
+    const activeEl = navRef.current.querySelector<HTMLElement>(`[data-navhref="${location}"]`);
+    if (activeEl) {
+      const navRect = navRef.current.getBoundingClientRect();
+      const elRect = activeEl.getBoundingClientRect();
+      setIndicator({ left: elRect.left - navRect.left, width: elRect.width });
+    }
+  }, [location, isContact]);
+
   const logoVisible = location !== "/" || heroPast;
 
-  // "About" scrolls to the about section on the home page
   function handleAboutClick(e: React.MouseEvent) {
     if (location === "/") {
       e.preventDefault();
@@ -40,14 +59,11 @@ export function Navbar() {
     } else {
       e.preventDefault();
       navigate("/");
-      // After navigation, wait a tick then scroll
       setTimeout(() => {
         document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
       }, 120);
     }
   }
-
-  const isContact = location === "/contact";
 
   return (
     <header
@@ -57,11 +73,7 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link
-          href="/"
-          className="font-brand font-bold text-lg tracking-wider group"
-          aria-label="Aprilwave home"
-        >
+        <Link href="/" className="font-brand font-bold text-lg tracking-wider group" aria-label="Aprilwave home">
           <motion.span
             animate={{ opacity: logoVisible ? 1 : 0, y: logoVisible ? 0 : -6 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
@@ -72,55 +84,64 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <LayoutGroup id="navbar">
-          <nav className="hidden md:flex items-center gap-8">
-            {links.map((link) => {
-              const isActive = location === link.href && !isContact;
-              const isAbout = link.label === "About";
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={isAbout ? handleAboutClick : undefined}
-                  className={cn(
-                    "relative font-medium text-sm transition-colors hover:text-foreground",
-                    isActive ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {link.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.55 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
+        <div ref={navRef} className="hidden md:flex items-center gap-8 relative">
+          {links.map((link) => {
+            const isActive = location === link.href && !isContact;
+            const isAbout = link.label === "About";
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                data-navhref={link.href}
+                onClick={isAbout ? handleAboutClick : undefined}
+                className={cn(
+                  "relative font-medium text-sm transition-colors hover:text-foreground",
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
 
-            {/* Let's Talk — participates in the shared underline animation */}
-            <Link
-              href="/contact"
-              className={cn(
-                "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
-                isContact
-                  ? "text-white shadow-primary/30"
-                  : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
-              )}
-            >
+          {/* Single shared indicator — slides purely horizontally between links */}
+          <AnimatePresence>
+            {indicator && !isContact && (
+              <motion.div
+                className="absolute -bottom-1 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full pointer-events-none"
+                initial={false}
+                animate={{ left: indicator.left, width: indicator.width }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Let's Talk */}
+          <Link
+            href="/contact"
+            className={cn(
+              "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
+              isContact
+                ? "text-white shadow-primary/30"
+                : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
+            )}
+          >
+            <AnimatePresence>
               {isContact && (
                 <motion.span
-                  layoutId="navbar-indicator"
-                  initial={false}
+                  key="contact-fill"
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.7, opacity: 0 }}
+                  transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
                   className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary"
-                  transition={{ type: "spring", bounce: 0.25, duration: 0.55 }}
                 />
               )}
-              <span className="relative z-10">Let's Talk</span>
-            </Link>
-          </nav>
-        </LayoutGroup>
+            </AnimatePresence>
+            <span className="relative z-10">Let's Talk</span>
+          </Link>
+        </div>
 
         {/* Mobile Toggle */}
         <button
@@ -157,10 +178,7 @@ export function Navbar() {
                 </Link>
               );
             })}
-            <Link
-              href="/contact"
-              className="font-display text-2xl font-medium text-foreground"
-            >
+            <Link href="/contact" className="font-display text-2xl font-medium text-foreground">
               Let's Talk
             </Link>
           </motion.div>
