@@ -8,9 +8,13 @@ import { useLocation } from "wouter";
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
 
-  // Scroll to top on every page change
+  // Scroll to top on every page change — delayed by one frame so
+  // framer-motion can snapshot element positions before the page moves
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    const id = requestAnimationFrame(() =>
+      window.scrollTo({ top: 0, behavior: "instant" })
+    );
+    return () => cancelAnimationFrame(id);
   }, [location]);
 
   return (

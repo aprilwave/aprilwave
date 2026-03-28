@@ -91,7 +91,6 @@ export function Navbar() {
                   {isActive && (
                     <motion.div
                       layoutId="navbar-indicator"
-                      initial={false}
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.55 }}
                     />
