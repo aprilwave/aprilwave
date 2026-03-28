@@ -14,12 +14,19 @@ export function Navbar() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [heroPast, setHeroPast] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      // Show navbar logo when scrolled far enough that hero Aprilwave is off screen
+      // Hero is 90vh; title is roughly centered, so it leaves view around 35-40vh scroll
+      setHeroPast(y > window.innerHeight * 0.38);
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -27,6 +34,9 @@ export function Navbar() {
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
+
+  // Logo is visible: always on non-home pages, or when scrolled past hero on home
+  const logoVisible = location !== "/" || heroPast;
 
   return (
     <header
@@ -36,11 +46,18 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="font-brand font-bold text-lg tracking-wider group"
+          aria-label="Aprilwave home"
         >
-          <span><span className="text-foreground">April</span><span className="text-primary">wave</span></span>
+          <motion.span
+            animate={{ opacity: logoVisible ? 1 : 0, y: logoVisible ? 0 : -6 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            style={{ display: "inline-block" }}
+          >
+            <span className="text-foreground">April</span><span className="text-primary">wave</span>
+          </motion.span>
         </Link>
 
         {/* Desktop Nav */}
