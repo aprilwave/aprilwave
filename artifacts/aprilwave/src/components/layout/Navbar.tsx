@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -72,53 +72,56 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map((link) => {
-            const isActive = location === link.href && !isContact;
-            const isAbout = link.label === "About";
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={isAbout ? handleAboutClick : undefined}
-                className={cn(
-                  "relative font-medium text-sm transition-colors hover:text-foreground",
-                  isActive ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-                {isActive && (
-                  <motion.div
-                    layoutId="navbar-indicator"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
+        <LayoutGroup id="navbar">
+          <nav className="hidden md:flex items-center gap-8">
+            {links.map((link) => {
+              const isActive = location === link.href && !isContact;
+              const isAbout = link.label === "About";
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={isAbout ? handleAboutClick : undefined}
+                  className={cn(
+                    "relative font-medium text-sm transition-colors hover:text-foreground",
+                    isActive ? "text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  {link.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      initial={false}
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.55 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
 
-          {/* Let's Talk — participates in the shared underline animation */}
-          <Link
-            href="/contact"
-            className={cn(
-              "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden",
-              isContact
-                ? "text-white shadow-primary/30"
-                : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
-            )}
-          >
-            {/* Gradient fill slides in from the underline when contact is active */}
-            {isContact && (
-              <motion.span
-                layoutId="navbar-indicator"
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary"
-                transition={{ type: "spring", bounce: 0.25, duration: 0.55 }}
-              />
-            )}
-            <span className="relative z-10">Let's Talk</span>
-          </Link>
-        </nav>
+            {/* Let's Talk — participates in the shared underline animation */}
+            <Link
+              href="/contact"
+              className={cn(
+                "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
+                isContact
+                  ? "text-white shadow-primary/30"
+                  : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
+              )}
+            >
+              {isContact && (
+                <motion.span
+                  layoutId="navbar-indicator"
+                  initial={false}
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary"
+                  transition={{ type: "spring", bounce: 0.25, duration: 0.55 }}
+                />
+              )}
+              <span className="relative z-10">Let's Talk</span>
+            </Link>
+          </nav>
+        </LayoutGroup>
 
         {/* Mobile Toggle */}
         <button

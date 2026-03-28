@@ -2,9 +2,17 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { MouseGlow } from "@/components/MouseGlow";
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { useLocation } from "wouter";
 
 export function Layout({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+
+  // Scroll to top on every page change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location]);
+
   return (
     <div className="min-h-screen flex flex-col relative selection:bg-primary selection:text-primary-foreground">
       <MouseGlow />
