@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="180" height="180" rx="40" fill="#17191E"/>
-  <!-- Stylized Audiowide-inspired A -->
-  <path d="M50 135L90 45L130 135" stroke="url(#a_gradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M70 100H110" stroke="url(#a_gradient)" stroke-width="14" stroke-linecap="round"/>
+  <!-- Precise Audiowide-style A -->
+  <path d="M40 140L80 40H100L140 140" stroke="url(#a_gradient)" stroke-width="24" stroke-linecap="butt" stroke-linejoin="round"/>
+  <path d="M72 105H108" stroke="url(#a_gradient)" stroke-width="17" stroke-linecap="butt"/>
 </svg>
