@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -15,9 +15,22 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [heroPast, setHeroPast] = useState(false);
 
-  // Single indicator measured from the nav container — guarantees horizontal-only motion
   const navRef = useRef<HTMLDivElement>(null);
-  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+  const [indicator, setIndicator] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    radius: number;
+    opacity: number;
+  }>({
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 2,
+    radius: 9999,
+    opacity: 0,
+  });
 
   const isContact = location === "/contact";
 
@@ -36,18 +49,62 @@ export function Navbar() {
     setIsOpen(false);
   }, [location]);
 
-  // Measure the active nav link and position the indicator
-  useEffect(() => {
-    if (!navRef.current || isContact) {
-      setIndicator(null);
-      return;
-    }
-    const activeEl = navRef.current.querySelector<HTMLElement>(`[data-navhref="${location}"]`);
-    if (activeEl) {
-      const navRect = navRef.current.getBoundingClientRect();
-      const elRect = activeEl.getBoundingClientRect();
-      setIndicator({ left: elRect.left - navRect.left, width: elRect.width });
-    }
+  // Precise measurement for all navigation positions
+  useLayoutEffect(() => {
+    if (!navRef.current) return;
+
+    // Use a slight timeout to ensure DOM has settled, but since we're in useLayoutEffect,
+    // we mostly rely on the direct DOM measurement.
+    const updateIndicator = () => {
+      if (!navRef.current) return;
+      
+      let targetEl: HTMLElement | null = null;
+      if (isContact) {
+        targetEl = navRef.current.querySelector<HTMLElement>('a[href="/contact"]');
+      } else {
+        targetEl = navRef.current.querySelector<HTMLElement>(`a[data-navhref="${location}"]`);
+      }
+
+      if (targetEl) {
+        const navRect = navRef.current.getBoundingClientRect();
+        const elRect = targetEl.getBoundingClientRect();
+        
+        const left = elRect.left - navRect.left;
+        const width = elRect.width;
+        const top = elRect.top - navRect.top;
+        
+        if (isContact) {
+          // Pill shape: fills the button perfectly
+          setIndicator({
+            left,
+            top,
+            width,
+            height: elRect.height,
+            radius: 9999,
+            opacity: 1,
+          });
+        } else {
+          // Underline shape: 2px bar, 4px below the text
+          setIndicator({
+            left,
+            top: top + elRect.height + 4,
+            width,
+            height: 2,
+            radius: 9999,
+            opacity: 1,
+          });
+        }
+      } else {
+        // Only hide if we really can't find the target
+        setIndicator((prev) => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    updateIndicator();
+    
+    // Also re-measure on window resize to keep it pinned
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
   }, [location, isContact]);
 
   const logoVisible = location !== "/" || heroPast;
@@ -55,8 +112,10 @@ export function Navbar() {
   function handleAboutClick(e: React.MouseEvent) {
     if (location === "/") {
       e.preventDefault();
-      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+      // If already on home, scroll back to the very top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      // From other pages, navigate home and then scroll to the bio
       e.preventDefault();
       navigate("/");
       setTimeout(() => {
@@ -84,7 +143,25 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div ref={navRef} className="hidden md:flex items-center gap-8 relative">
+        <div ref={navRef} className="hidden md:flex items-center gap-8 relative py-2">
+          {/* Shared Moving Indicator Component */}
+          <motion.div
+            className="absolute bg-gradient-to-r from-primary via-accent to-secondary pointer-events-none z-0"
+            animate={{
+              left: indicator.left,
+              top: indicator.top,
+              width: indicator.width,
+              height: indicator.height,
+              borderRadius: indicator.radius,
+              opacity: indicator.opacity,
+            }}
+            transition={{
+              type: "spring",
+              bounce: 0.2,
+              duration: 0.5,
+            }}
+          />
+
           {links.map((link) => {
             const isActive = location === link.href && !isContact;
             const isAbout = link.label === "About";
@@ -95,7 +172,7 @@ export function Navbar() {
                 data-navhref={link.href}
                 onClick={isAbout ? handleAboutClick : undefined}
                 className={cn(
-                  "relative font-medium text-sm transition-colors hover:text-foreground",
+                  "relative z-10 py-1 font-medium text-sm transition-colors hover:text-foreground",
                   isActive ? "text-foreground" : "text-muted-foreground"
                 )}
               >
@@ -104,41 +181,16 @@ export function Navbar() {
             );
           })}
 
-          {/* Single shared indicator — slides purely horizontally between links */}
-          <AnimatePresence>
-            {indicator && !isContact && (
-              <motion.div
-                className="absolute -bottom-1 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full pointer-events-none"
-                initial={false}
-                animate={{ left: indicator.left, width: indicator.width }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Let's Talk */}
+          {/* Let's Talk Button */}
           <Link
             href="/contact"
             className={cn(
-              "relative px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
+              "relative z-10 px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
               isContact
                 ? "text-white shadow-primary/30"
-                : "bg-foreground text-background hover:bg-primary hover:text-primary-foreground"
+                : "bg-foreground text-background hover:bg-primary/10 hover:text-primary"
             )}
           >
-            <AnimatePresence>
-              {isContact && (
-                <motion.span
-                  key="contact-fill"
-                  initial={{ scale: 0.7, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.7, opacity: 0 }}
-                  transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
-                  className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary"
-                />
-              )}
-            </AnimatePresence>
             <span className="relative z-10">Let's Talk</span>
           </Link>
         </div>

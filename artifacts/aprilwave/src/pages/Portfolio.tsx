@@ -1,4 +1,4 @@
-import { Layout } from "@/components/layout/Layout";
+// import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
 import { Play, Pause, ExternalLink } from "lucide-react";
 import { useState } from "react";
@@ -67,7 +67,7 @@ export default function Portfolio() {
     : portfolioItems.filter(item => item.category === activeCategory);
 
   return (
-    <Layout>
+    <>
       {/* Decorative blurred blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-b from-primary/10 via-secondary/5 to-transparent blur-[100px] pointer-events-none -z-10" />
       
@@ -198,6 +198,6 @@ export default function Portfolio() {
         </div>
 
       </section>
-    </Layout>
+    </>
   );
 }

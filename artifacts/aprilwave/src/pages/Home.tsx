@@ -1,4 +1,4 @@
-import { Layout } from "@/components/layout/Layout";
+// import { Layout } from "@/components/layout/Layout";
 import { GlowLine } from "@/components/GlowLine";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
@@ -6,7 +6,7 @@ import { Link } from "wouter";
 
 export default function Home() {
   return (
-    <Layout>
+    <>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
         {/* GlowLine background — replaces aurora blobs, notes, and waveform */}
@@ -142,6 +142,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

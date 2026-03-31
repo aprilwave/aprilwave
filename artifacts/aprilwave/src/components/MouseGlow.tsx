@@ -29,14 +29,15 @@ export function MouseGlow() {
       ref={glowRef}
       className="fixed pointer-events-none z-[30] opacity-0"
       style={{
-        width: "700px",
-        height: "700px",
+        width: "300px",
+        height: "250px",
         transform: "translate(-50%, -50%)",
         background:
-          "radial-gradient(circle, hsl(var(--primary) / 0.10) 0%, hsl(var(--secondary) / 0.07) 35%, transparent 70%)",
+          "radial-gradient(circle, hsl(var(--primary) / 0.35) 0%, hsl(var(--accent) / 0.25) 30%, hsl(var(--secondary) / 0.15) 50%, transparent 70%)",
         borderRadius: "50%",
         transition: "opacity 0.4s ease",
         willChange: "left, top",
+        mixBlendMode: "soft-light",
       }}
     />
   );

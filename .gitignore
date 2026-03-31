@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Additional Exclusions
+.config/
+artifacts/aprilwave/src_transition_backup/
