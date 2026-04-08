@@ -1,73 +1,45 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useAudio } from "@/context/AudioContext";
 
 export function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasStartedRef = useRef(false);
+  const { registerAudio, togglePlay, isPlaying } = useAudio();
 
-  const FADE_DURATION = 700; // 0.7s
-  const FADE_STEP_MS = 20;
-
-  const fade = useCallback((targetVolume: number) => {
-    if (!audioRef.current) return;
-
-    if (fadeIntervalRef.current) {
-      clearInterval(fadeIntervalRef.current);
+  /* Register the <audio> element once it mounts */
+  useEffect(() => {
+    if (audioRef.current) {
+      registerAudio(audioRef.current);
     }
+  }, [registerAudio]);
 
-    const startVolume = audioRef.current.volume;
-    const startTime = Date.now();
-
-    fadeIntervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / FADE_DURATION, 1);
-
-      if (audioRef.current) {
-        audioRef.current.volume =
-          startVolume + (targetVolume - startVolume) * progress;
-      }
-
-      if (progress >= 1) {
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-      }
-    }, FADE_STEP_MS);
-  }, []);
-
+  /* Attempt autoplay, falling back to first interaction */
   const startPlayback = useCallback(async () => {
     if (hasStartedRef.current || !audioRef.current) return;
-
-    try {
-      audioRef.current.volume = 0;
-      await audioRef.current.play();
-      hasStartedRef.current = true;
-      fade(1);
-    } catch {
-      // Autoplay blocked — will retry on user interaction
+    
+    if (!isPlaying) {
+      const success = await togglePlay();
+      if (success) {
+        hasStartedRef.current = true;
+      }
     }
-  }, [fade]);
+  }, [togglePlay, isPlaying]);
 
   useEffect(() => {
-    // Attempt autoplay immediately
-    startPlayback();
-
-    // Fallback: start on first user interaction (click, scroll, keydown, touch)
     const handleInteraction = () => {
-      if (!hasStartedRef.current) {
-        startPlayback();
-      }
+      if (!hasStartedRef.current) startPlayback();
     };
 
-    window.addEventListener("click", handleInteraction, { once: false });
-    window.addEventListener("scroll", handleInteraction, { once: false });
-    window.addEventListener("keydown", handleInteraction, { once: false });
-    window.addEventListener("touchstart", handleInteraction, { once: false });
+    window.addEventListener("click", handleInteraction, { capture: true });
+    window.addEventListener("scroll", handleInteraction, { capture: true });
+    window.addEventListener("keydown", handleInteraction, { capture: true });
+    window.addEventListener("touchstart", handleInteraction, { capture: true });
 
     return () => {
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("scroll", handleInteraction);
-      window.removeEventListener("keydown", handleInteraction);
-      window.removeEventListener("touchstart", handleInteraction);
-      if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+      window.removeEventListener("click", handleInteraction, { capture: true });
+      window.removeEventListener("scroll", handleInteraction, { capture: true });
+      window.removeEventListener("keydown", handleInteraction, { capture: true });
+      window.removeEventListener("touchstart", handleInteraction, { capture: true });
     };
   }, [startPlayback]);
 

@@ -192,6 +192,12 @@
     animation: waveform-pulse 1.6s ease-in-out infinite;
     transform-origin: bottom;
   }
+
+
+  .orb-eq-bar {
+    animation: orb-eq-bar 1s ease-in-out infinite;
+    transform-origin: bottom;
+  }
 }
 
 @keyframes waveform-pulse {
@@ -202,4 +208,12 @@
 @keyframes wave-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+
+@keyframes orb-eq-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  25% { transform: scaleY(1); }
+  50% { transform: scaleY(0.55); }
+  75% { transform: scaleY(0.85); }
 }
