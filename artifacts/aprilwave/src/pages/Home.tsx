@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
 import { Link } from "wouter";
+import { PlayAmbience } from "@/components/PlayAmbience";
 
 export default function Home() {
   return (
@@ -12,6 +13,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-transparent pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
+          <PlayAmbience />
+
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

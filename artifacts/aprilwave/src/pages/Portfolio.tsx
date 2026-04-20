@@ -106,9 +106,10 @@ export default function Portfolio() {
   } = useAudio();
 
   const activeCatData = categories.find((c) => c.name === activeCategory) || categories[0];
-  const currentTrack = shuffledTracks[currentTrackIndex];
   const hasTracks = activeCatData.tracks.length > 0;
   const isPortfolioPlaying = playSource === "portfolio" && ctxIsPlaying;
+  const currentTrack = shuffledTracks[currentTrackIndex];
+  const activeTrackName = isPortfolioPlaying ? ctxTrackName : currentTrack?.title;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -131,8 +132,7 @@ export default function Portfolio() {
 
   useEffect(() => {
     if (hasTracks) {
-      const shuffled = shuffleArray(activeCatData.tracks);
-      setShuffledTracks(shuffled);
+      setShuffledTracks(shuffleArray(activeCatData.tracks));
       setCurrentTrackIndex(0);
       currentIndexRef.current = 0;
     }
@@ -153,14 +153,6 @@ export default function Portfolio() {
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, [isPortfolioPlaying, getFrequencyData]);
-
-  useEffect(() => {
-    return () => {
-      if (playSource === "portfolio" && ctxIsPlaying) {
-        pause();
-      }
-    };
-  }, []);
 
   const handleTogglePlay = async () => {
     if (!currentTrack) return;
@@ -303,7 +295,7 @@ export default function Portfolio() {
                 <span className="text-xs uppercase tracking-widest text-muted-foreground">
                   {activeCategory}
                 </span>
-                <h2 className="font-display text-2xl font-bold mt-2">{currentTrack?.title}</h2>
+                <h2 className="font-display text-2xl font-bold mt-2">{activeTrackName}</h2>
               </div>
 
               <div className="flex items-end justify-center gap-1 h-16 mb-6">
@@ -420,7 +412,7 @@ export default function Portfolio() {
                     key={track.id}
                     onClick={() => playTrack(index)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
-                      currentTrackIndex === index
+                      ctxTrackName === track.title
                         ? "bg-white/10 text-foreground"
                         : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                     }`}

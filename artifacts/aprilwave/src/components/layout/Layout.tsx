@@ -2,7 +2,6 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { GlowLine } from "@/components/GlowLine";
 import { MouseGlow } from "@/components/MouseGlow";
-import { BackgroundMusic } from "@/components/BackgroundMusic";
 import { MusicOrb } from "@/components/MusicOrb";
 import { AudioProvider } from "@/context/AudioContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,8 +11,6 @@ import { useLocation } from "wouter";
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
 
-  // Scroll to top on every page change — delayed by one frame so
-  // framer-motion can snapshot element positions before the page moves
   useEffect(() => {
     const id = requestAnimationFrame(() =>
       window.scrollTo({ top: 0, behavior: "instant" }),
@@ -25,7 +22,6 @@ export function Layout({ children }: { children: ReactNode }) {
     <AudioProvider>
       <div className="min-h-screen flex flex-col relative selection-bg-primary selection:text-primary-foreground">
         <GlowLine />
-        <BackgroundMusic />
         <MouseGlow />
         <Navbar />
         <MusicOrb />
