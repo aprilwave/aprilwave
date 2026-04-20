@@ -1,8 +1,9 @@
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { ViewTransitionLink } from "@/components/ViewTransitionLink";
 
 const links = [
   { href: "/", label: "About" },
@@ -57,22 +58,25 @@ export function Navbar() {
     // we mostly rely on the direct DOM measurement.
     const updateIndicator = () => {
       if (!navRef.current) return;
-      
+
       let targetEl: HTMLElement | null = null;
       if (isContact) {
-        targetEl = navRef.current.querySelector<HTMLElement>('a[href="/contact"]');
+        targetEl =
+          navRef.current.querySelector<HTMLElement>('a[href="/contact"]');
       } else {
-        targetEl = navRef.current.querySelector<HTMLElement>(`a[data-navhref="${location}"]`);
+        targetEl = navRef.current.querySelector<HTMLElement>(
+          `a[data-navhref="${location}"]`,
+        );
       }
 
       if (targetEl) {
         const navRect = navRef.current.getBoundingClientRect();
         const elRect = targetEl.getBoundingClientRect();
-        
+
         const left = elRect.left - navRect.left;
         const width = elRect.width;
         const top = elRect.top - navRect.top;
-        
+
         if (isContact) {
           // Pill shape: fills the button perfectly
           setIndicator({
@@ -101,7 +105,7 @@ export function Navbar() {
     };
 
     updateIndicator();
-    
+
     // Also re-measure on window resize to keep it pinned
     window.addEventListener("resize", updateIndicator);
     return () => window.removeEventListener("resize", updateIndicator);
@@ -112,14 +116,17 @@ export function Navbar() {
   function handleAboutClick(e: React.MouseEvent) {
     if (location === "/") {
       e.preventDefault();
-      // If already on home, scroll back to the very top
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      // From other pages, navigate home and then scroll to the bio
       e.preventDefault();
       navigate("/");
       setTimeout(() => {
-        document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+        const aboutSection = document.getElementById("about");
+        if (aboutSection) {
+          const top =
+            aboutSection.getBoundingClientRect().top + window.scrollY - 320;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
       }, 120);
     }
   }
@@ -128,22 +135,30 @@ export function Navbar() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
-        scrolled ? "py-3 glass-panel" : "py-5 bg-transparent"
+        scrolled ? "py-3 glass-panel" : "py-5 bg-transparent",
       )}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link href="/" className="font-brand font-bold text-lg tracking-wider group" aria-label="Aprilwave home">
+        <ViewTransitionLink
+          href="/"
+          transitionName="brand"
+          className="font-brand font-bold text-lg tracking-wider group view-transition-brand"
+          aria-label="Aprilwave home"
+        >
           <motion.span
             animate={{ opacity: logoVisible ? 1 : 0, y: logoVisible ? 0 : -6 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
             style={{ display: "inline-block" }}
           >
-            <span className="text-gradient">Aprilwave</span>
+            <span className="text-primary">Aprilwave</span>
           </motion.span>
-        </Link>
+        </ViewTransitionLink>
 
         {/* Desktop Nav */}
-        <div ref={navRef} className="hidden md:flex items-center gap-8 relative py-2">
+        <div
+          ref={navRef}
+          className="hidden md:flex items-center gap-8 relative py-2"
+        >
           {/* Shared Moving Indicator Component */}
           <motion.div
             className="absolute bg-gradient-to-r from-primary via-accent to-secondary pointer-events-none z-0"
@@ -166,33 +181,33 @@ export function Navbar() {
             const isActive = location === link.href && !isContact;
             const isAbout = link.label === "About";
             return (
-              <Link
+              <ViewTransitionLink
                 key={link.href}
                 href={link.href}
                 data-navhref={link.href}
                 onClick={isAbout ? handleAboutClick : undefined}
                 className={cn(
                   "relative z-10 py-1 font-medium text-sm transition-colors hover:text-foreground",
-                  isActive ? "text-foreground" : "text-muted-foreground"
+                  isActive ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 {link.label}
-              </Link>
+              </ViewTransitionLink>
             );
           })}
 
           {/* Let's Talk Button */}
-          <Link
+          <ViewTransitionLink
             href="/contact"
             className={cn(
               "relative z-10 px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
               isContact
                 ? "text-white shadow-primary/30"
-                : "bg-foreground text-background hover:bg-primary/10 hover:text-primary"
+                : "bg-foreground text-background hover:bg-primary/10 hover:text-primary",
             )}
           >
             <span className="relative z-10">Let's Talk</span>
-          </Link>
+          </ViewTransitionLink>
         </div>
 
         {/* Mobile Toggle */}
@@ -217,22 +232,25 @@ export function Navbar() {
             {links.map((link) => {
               const isAbout = link.label === "About";
               return (
-                <Link
+                <ViewTransitionLink
                   key={link.href}
                   href={link.href}
                   onClick={isAbout ? handleAboutClick : undefined}
                   className={cn(
                     "font-display text-2xl font-medium",
-                    location === link.href ? "text-primary" : "text-foreground"
+                    location === link.href ? "text-primary" : "text-foreground",
                   )}
                 >
                   {link.label}
-                </Link>
+                </ViewTransitionLink>
               );
             })}
-            <Link href="/contact" className="font-display text-2xl font-medium text-foreground">
+            <ViewTransitionLink
+              href="/contact"
+              className="font-display text-2xl font-medium text-foreground"
+            >
               Let's Talk
-            </Link>
+            </ViewTransitionLink>
           </motion.div>
         )}
       </AnimatePresence>

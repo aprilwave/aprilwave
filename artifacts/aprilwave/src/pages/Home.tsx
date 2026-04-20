@@ -1,27 +1,22 @@
 // import { Layout } from "@/components/layout/Layout";
-import { GlowLine } from "@/components/GlowLine";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
-import { Link } from "wouter";
+import { ViewTransitionLink } from "@/components/ViewTransitionLink";
 
 export default function Home() {
   return (
     <>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
-        {/* GlowLine background — replaces aurora blobs, notes, and waveform */}
-        <div className="absolute inset-0 z-0">
-          <GlowLine />
-          {/* Subtle dark vignette overlay so text reads clearly */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-transparent to-background/80" />
-        </div>
+        {/* Subtle dark vignette overlay so text reads clearly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-transparent pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0 }}
-            className="font-brand text-gradient text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
+            className="font-brand text-primary text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4 view-transition-hero"
           >
             Aprilwave
           </motion.h2>
@@ -45,7 +40,7 @@ export default function Home() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            Available for exciting new projects
+            Available for new projects
           </motion.div>
 
           <motion.div
@@ -54,29 +49,29 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="flex flex-col sm:flex-row items-center gap-4"
           >
-            <Link
+            <ViewTransitionLink
               href="/portfolio"
+              transitionName="portfolio-header"
               className="px-8 py-4 rounded-full bg-foreground text-background font-medium hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-xl hover:shadow-primary/30 hover:-translate-y-1 flex items-center gap-2"
             >
               <Play className="w-4 h-4 fill-current" />
               Explore My Work
-            </Link>
-            <Link
+            </ViewTransitionLink>
+            <ViewTransitionLink
               href="/contact"
               className="px-8 py-4 rounded-full glass-panel font-medium hover:bg-white/60 transition-all duration-300 flex items-center gap-2 group text-foreground"
             >
               Contact Me
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </ViewTransitionLink>
           </motion.div>
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 relative bg-background">
+      <section id="about" className="py-24 relative">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-
             {/* Image Column */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
@@ -85,7 +80,7 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="relative"
             >
-              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-[2.5rem] blur-xl z-0" />
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/10 to-secondary/20 rounded-[2.5rem] blur-xl z-0" />
               <div className="relative z-10 rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl bg-white aspect-square max-w-md mx-auto">
                 <img
                   src={`${import.meta.env.BASE_URL}images/profile.png`}
@@ -101,7 +96,9 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">10+ Years</p>
-                  <p className="text-xs text-muted-foreground">Sonic Experience</p>
+                  <p className="text-xs text-muted-foreground">
+                    Sonic Experience
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -118,10 +115,18 @@ export default function Home() {
               </h2>
               <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
                 <p>
-                  I'm a versatile music producer, composer, and sound designer based in the ether. I specialize in crafting immersive soundscapes, dynamic game audio, and emotive original compositions that elevate the medium they accompany.
+                  I'm a versatile music producer, composer, and sound designer
+                  based in the ether. I specialize in crafting immersive
+                  soundscapes, dynamic game audio, and emotive original
+                  compositions that elevate the medium they accompany.
                 </p>
                 <p>
-                  With a deep love for both analog synthesizers and modern digital manipulation, my work bridges the gap between organic textures and futuristic tones. Whether it's an indie game needing a unique sonic identity or a short film requiring a delicate orchestral score, I approach every project with meticulous attention to detail.
+                  With a deep love for both analog synthesizers and modern
+                  digital manipulation, my work bridges the gap between organic
+                  textures and futuristic tones. Whether it's an indie game
+                  needing a unique sonic identity or a short film requiring a
+                  delicate orchestral score, I approach every project with
+                  meticulous attention to detail.
                 </p>
               </div>
 
@@ -129,16 +134,19 @@ export default function Home() {
                 <div className="space-y-2">
                   <Star className="w-6 h-6 text-secondary mb-3" />
                   <h4 className="font-bold text-foreground">Original Score</h4>
-                  <p className="text-sm text-muted-foreground">Tailor-made musical compositions for visual media.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Tailor-made musical compositions for visual media.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <AudioWaveform className="w-6 h-6 text-primary mb-3" />
                   <h4 className="font-bold text-foreground">Sound Design</h4>
-                  <p className="text-sm text-muted-foreground">Foley, UI sounds, and atmospheric environments.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Foley, UI sounds, and atmospheric environments.
+                  </p>
                 </div>
               </div>
             </motion.div>
-
           </div>
         </div>
       </section>

@@ -2,86 +2,137 @@
 import { motion } from "framer-motion";
 import { Play, Pause, ExternalLink } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { useAudio } from "@/context/AudioContext";
 
-// Mock data
-const categories = ["All", "Game Audio", "Film Score", "Sound Design", "Composition"];
+const categories = [
+  "All",
+  "Game/Film Compositions",
+  "Music",
+  "Game Audio/Sound Design",
+  "Synth Sound Design",
+];
 
 const portfolioItems = [
   {
     id: 1,
-    title: "Neon Horizon",
-    category: "Game Audio",
+    title: "Neon Horizons",
     description: "Cyberpunk-inspired dynamic combat soundtrack.",
+    tags: ["Game/Film Compositions", "Synth Sound Design"],
     image: "audio-1.png",
-    color: "from-blue-400 to-purple-400"
+    color: "from-primary/80 to-primary",
+    waveform: [
+      35, 55, 40, 70, 50, 85, 45, 60, 75, 40, 55, 65, 50, 80, 45, 60, 70, 55,
+      40, 65,
+    ],
   },
   {
     id: 2,
     title: "Whispers of the Forest",
-    category: "Film Score",
     description: "Orchestral piece for an indie animated short.",
+    tags: ["Game/Film Compositions", "Music"],
     image: "audio-2.png",
-    color: "from-emerald-400 to-teal-500"
+    color: "from-secondary/80 to-secondary",
+    waveform: [
+      45, 60, 35, 50, 70, 55, 40, 65, 75, 50, 45, 60, 55, 70, 40, 55, 65, 50,
+      35, 60,
+    ],
   },
   {
     id: 3,
-    title: "UI Click Interface pack",
-    category: "Sound Design",
+    title: "UI Click Interface Pack",
     description: "Modern, snappy interface sounds for mobile apps.",
+    tags: ["Game Audio/Sound Design"],
     image: "audio-3.png",
-    color: "from-rose-400 to-orange-400"
+    color: "from-accent/80 to-accent",
+    waveform: [
+      30, 45, 60, 40, 55, 70, 50, 40, 55, 65, 45, 35, 50, 60, 40, 55, 70, 50,
+      45, 60,
+    ],
   },
   {
     id: 4,
     title: "Stardust Lullaby",
-    category: "Composition",
     description: "Ambient electronic track featuring analog synths.",
+    tags: ["Music", "Synth Sound Design"],
     image: "audio-4.png",
-    color: "from-indigo-400 to-cyan-400"
+    color: "from-secondary/60 to-secondary/90",
+    waveform: [
+      50, 65, 40, 55, 75, 60, 45, 70, 55, 40, 60, 50, 45, 65, 55, 40, 70, 60,
+      50, 55,
+    ],
   },
   {
     id: 5,
     title: "Abyssal Descent",
-    category: "Game Audio",
     description: "Eerie atmospheric soundscapes for a horror title.",
+    tags: ["Game Audio/Sound Design", "Synth Sound Design"],
     image: "audio-1.png",
-    color: "from-slate-600 to-slate-800"
+    color: "from-slate-500/60 to-slate-700/80",
+    waveform: [
+      60, 45, 35, 55, 70, 50, 40, 65, 55, 45, 60, 50, 40, 55, 70, 45, 35, 60,
+      55, 50,
+    ],
   },
   {
     id: 6,
     title: "The Final Stand",
-    category: "Film Score",
     description: "Epic brass and percussion heavy trailer music.",
+    tags: ["Game/Film Compositions", "Music"],
     image: "audio-2.png",
-    color: "from-red-500 to-rose-700"
-  }
+    color: "from-primary to-primary/70",
+    waveform: [
+      40, 55, 70, 60, 45, 75, 55, 50, 65, 45, 60, 70, 50, 40, 65, 55, 45, 60,
+      70, 55,
+    ],
+  },
+  {
+    id: 7,
+    title: "Crystal Caves",
+    description: "Ethereal ambient textures for exploration games.",
+    tags: ["Synth Sound Design", "Game Audio/Sound Design"],
+    image: "audio-4.png",
+    color: "from-secondary/70 to-secondary/40",
+    waveform: [
+      45, 50, 35, 45, 60, 55, 40, 50, 65, 50, 40, 55, 45, 60, 50, 35, 55, 45,
+      40, 50,
+    ],
+  },
 ];
 
 export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [playingId, setPlayingId] = useState<number | null>(null);
+  const { setCurrentTrack } = useAudio();
 
-  const filteredItems = activeCategory === "All" 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === activeCategory);
+  const filteredItems =
+    activeCategory === "All"
+      ? portfolioItems
+      : portfolioItems.filter((item) => item.tags.includes(activeCategory));
+
+  const handlePlay = (id: number, title: string) => {
+    if (playingId === id) {
+      setPlayingId(null);
+    } else {
+      setPlayingId(id);
+      setCurrentTrack(title);
+    }
+  };
 
   return (
     <>
-      {/* Decorative blurred blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-b from-primary/10 via-secondary/5 to-transparent blur-[100px] pointer-events-none -z-10" />
-      
+        {/* Soft dark blur overlay ON TOP of GlowLine - more visible */}
+      <div className="fixed inset-0 pointer-events-none -z-5 bg-background/40 blur-lg" />
+
       <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full relative z-10">
-        
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-5xl font-bold mb-4"
+            className="font-display text-5xl font-bold mb-4 view-transition-portfolio-header"
           >
-            Selected <span className="text-gradient">Works</span>
+            Selected <span className="text-primary">Works</span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -91,8 +142,8 @@ export default function Portfolio() {
           </motion.p>
         </div>
 
-        {/* Filters */}
-        <motion.div 
+        {/* Glassmorphic Filters */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -102,101 +153,106 @@ export default function Portfolio() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={cn(
-                "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                activeCategory === cat 
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" 
-                  : "glass-panel hover:bg-white/80 text-foreground"
-              )}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 glass-panel active:scale-95 active:duration-150 ${
+                activeCategory === cat
+                  ? "bg-white/10 text-foreground shadow-lg"
+                  : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+              }`}
             >
               {cat}
             </button>
           ))}
         </motion.div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Vertical SoundCloud-style List */}
+        <div className="max-w-2xl mx-auto space-y-4">
           {filteredItems.map((item, index) => (
             <motion.div
               key={item.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="group relative bg-card rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-2 flex flex-col h-full"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.25, delay: index * 0.04 }}
+              className="group glass-panel rounded-2xl p-4 hover:bg-white/[0.08] transition-all duration-300"
             >
-              {/* Image Header */}
-              <div className="relative h-56 w-full overflow-hidden bg-muted">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img 
-                  src={`${import.meta.env.BASE_URL}images/${item.image}`}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button 
-                    onClick={() => setPlayingId(playingId === item.id ? null : item.id)}
-                    className="w-16 h-16 rounded-full bg-white/90 backdrop-blur text-primary flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
+              <div className="flex items-center gap-4">
+                {/* Thumbnail */}
+                <div className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={`${import.meta.env.BASE_URL}images/${item.image}`}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => handlePlay(item.id, item.title)}
+                    className="absolute inset-0 flex items-center justify-center bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 active:scale-95"
                   >
                     {playingId === item.id ? (
-                      <Pause className="w-6 h-6 fill-current" />
+                      <Pause className="w-6 h-6 text-white fill-current" />
                     ) : (
-                      <Play className="w-6 h-6 fill-current ml-1" />
+                      <Play className="w-6 h-6 text-white fill-current ml-0.5" />
                     )}
                   </button>
                 </div>
 
-                {/* Category Tag */}
-                <div className="absolute top-4 left-4 z-20">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-background/60 backdrop-blur-md text-foreground border border-border/50 shadow-sm">
-                    {item.category}
-                  </span>
-                </div>
-              </div>
+                {/* Waveform + Content */}
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  {/* Row 1: Title */}
+                  <h3 className="font-display text-base font-semibold text-foreground">
+                    {item.title}
+                  </h3>
 
-              {/* Content */}
-              <div className="p-6 flex-1 flex flex-col">
-                <h3 className="font-display text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground text-sm flex-1">
-                  {item.description}
-                </p>
-                
-                {/* Simulated Audio Waveform visualization */}
-                <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
-                  <div className="flex gap-1 items-end h-6">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <motion.div 
-                        key={i}
-                        animate={playingId === item.id ? {
-                          height: ["20%", "100%", "40%", "80%", "20%"]
-                        } : {
-                          height: "20%"
-                        }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1.2,
-                          delay: i * 0.1,
-                          ease: "easeInOut"
-                        }}
-                        className={cn("w-1.5 rounded-full", `bg-gradient-to-t ${item.color}`)}
-                        style={{ height: "20%" }}
-                      />
-                    ))}
+                  {/* Row 2: Waveform + Play */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-end gap-0.5 h-5 flex-1 min-w-0">
+                      {item.waveform.map((height, i) => (
+                        <motion.div
+                          key={i}
+                          animate={
+                            playingId === item.id
+                              ? {
+                                  height: [
+                                    "20%",
+                                    `${height}%`,
+                                    "30%",
+                                    `${height - 10}%`,
+                                    "20%",
+                                  ],
+                                }
+                              : { height: "20%" }
+                          }
+                          transition={{
+                            repeat: Infinity,
+                            duration: 1.5,
+                            delay: i * 0.08,
+                            ease: "easeInOut",
+                          }}
+                          className={`flex-1 rounded-sm bg-gradient-to-t ${item.color}`}
+                          style={{ minWidth: 2 }}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => handlePlay(item.id, item.title)}
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all duration-200"
+                    >
+                      {playingId === item.id ? (
+                        <Pause className="w-4 h-4 text-foreground fill-current" />
+                      ) : (
+                        <Play className="w-4 h-4 text-foreground fill-current ml-0.5" />
+                      )}
+                    </button>
                   </div>
-                  <button className="text-muted-foreground hover:text-foreground transition-colors">
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
+
+                  {/* Row 3: Description */}
+                  <p className="text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
-
       </section>
     </>
   );
