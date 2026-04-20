@@ -10,13 +10,18 @@ import {
 
 interface AudioContextValue {
   isPlaying: boolean;
+  playSource: "orb" | "portfolio" | null;
   volume: number;
   currentTrack: string;
+  currentTime: number;
+  duration: number;
   hasPlayedAtLeastOnce: boolean;
-  togglePlay: () => Promise<boolean>;
+  play: (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void) => Promise<void>;
+  pause: () => void;
+  togglePlay: (source?: "orb" | "portfolio") => Promise<boolean>;
+  seek: (time: number) => void;
   setVolume: (v: number) => void;
   setCurrentTrack: (track: string) => void;
-  registerAudio: (el: HTMLAudioElement) => void;
   getFrequencyData: () => Uint8Array;
 }
 
@@ -37,28 +42,75 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const sourceElementRef = useRef<HTMLAudioElement | null>(null);
   const frequencyDataRef = useRef<Uint8Array>(new Uint8Array(64));
+  const timeUpdateRef = useRef<number | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playSource, setPlaySource] = useState<"orb" | "portfolio" | null>(null);
   const [hasPlayedAtLeastOnce, setHasPlayedAtLeastOnce] = useState(false);
   const [volume, _setVolume] = useState(0.75);
   const [currentTrack, setCurrentTrack] = useState("Atomic");
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  /* ── helpers ─────────────────────────────────────── */
+  const ensureAudioContext = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      analyserRef.current.smoothingTimeConstant = 0.8;
+      frequencyDataRef.current = new Uint8Array(analyserRef.current.frequencyBinCount);
+    }
+    if (audioContextRef.current.state === "suspended") {
+      audioContextRef.current.resume();
+    }
+  }, []);
+
+  const connectAudio = useCallback((el: HTMLAudioElement) => {
+    ensureAudioContext();
+    if (sourceElementRef.current === el) return;
+
+    if (sourceRef.current) {
+      sourceRef.current.disconnect();
+    }
+
+    sourceRef.current = audioContextRef.current!.createMediaElementSource(el);
+    sourceRef.current.connect(analyserRef.current!);
+    analyserRef.current!.connect(audioContextRef.current!.destination);
+    sourceElementRef.current = el;
+  }, [ensureAudioContext]);
 
   const fadeTo = useCallback((target: number) => {
     const el = audioRef.current;
     if (!el) return;
-
     if (fadeRef.current) clearInterval(fadeRef.current);
-
     const start = el.volume;
     const t0 = Date.now();
-
     fadeRef.current = setInterval(() => {
       const p = Math.min((Date.now() - t0) / FADE_DURATION, 1);
       el.volume = start + (target - start) * p;
       if (p >= 1 && fadeRef.current) clearInterval(fadeRef.current);
     }, FADE_STEP_MS);
+  }, []);
+
+  const startTimeTracking = useCallback(() => {
+    if (timeUpdateRef.current) cancelAnimationFrame(timeUpdateRef.current);
+    const tick = () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        setCurrentTime(audioRef.current.currentTime);
+        setDuration(audioRef.current.duration || 0);
+        timeUpdateRef.current = requestAnimationFrame(tick);
+      }
+    };
+    tick();
+  }, []);
+
+  const stopTimeTracking = useCallback(() => {
+    if (timeUpdateRef.current) {
+      cancelAnimationFrame(timeUpdateRef.current);
+      timeUpdateRef.current = null;
+    }
   }, []);
 
   const getFrequencyData = useCallback(() => {
@@ -68,44 +120,87 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     return frequencyDataRef.current;
   }, []);
 
-  /* ── public API ──────────────────────────────────── */
+  const stopCurrentSource = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    fadeTo(0);
+    stopTimeTracking();
+    setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setPlaySource(null);
+      setCurrentTime(0);
+    }, FADE_DURATION);
+  }, [fadeTo, stopTimeTracking]);
 
-  const registerAudio = useCallback((el: HTMLAudioElement) => {
-    audioRef.current = el;
+  const play = useCallback(async (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void) => {
+    ensureAudioContext();
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 128;
-      analyserRef.current.smoothingTimeConstant = 0.8;
-      frequencyDataRef.current = new Uint8Array(analyserRef.current.frequencyBinCount);
+    const el = audioRef.current;
+    const isSameElement = el && el.src === src;
+
+    if (playSource && playSource !== source) {
+      stopCurrentSource();
+      await new Promise((r) => setTimeout(r, FADE_DURATION + 50));
     }
 
-    if (audioContextRef.current && !sourceRef.current) {
-      sourceRef.current = audioContextRef.current.createMediaElementSource(el);
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.connect(audioContextRef.current.destination);
+    let audio: HTMLAudioElement;
+    if (isSameElement && el) {
+      audio = el;
+    } else {
+      audio = new Audio(src);
+      audioRef.current = audio;
+      connectAudio(audio);
     }
-  }, []);
 
-  const setVolume = useCallback((v: number) => {
-    const clamped = Math.max(0, Math.min(1, v));
-    _setVolume(clamped);
-    if (audioRef.current) {
-      audioRef.current.volume = clamped;
+    audio.volume = Math.pow(volume, 2);
+    audio.load();
+
+    setCurrentTrack(title);
+
+    // Remove old ended listener
+    audio.onended = null;
+
+    if (onEnded) {
+      audio.onended = onEnded;
     }
-  }, []);
 
-  const setCurrentTrackFn = useCallback((track: string) => {
-    setCurrentTrack(track);
-  }, []);
+    try {
+      audio.volume = 0;
+      await audio.play();
+      setIsPlaying(true);
+      setPlaySource(source);
+      setHasPlayedAtLeastOnce(true);
+      fadeTo(Math.pow(volume, 2));
+      startTimeTracking();
+    } catch {
+      // autoplay blocked
+    }
+  }, [playSource, stopCurrentSource, ensureAudioContext, connectAudio, volume, fadeTo, startTimeTracking]);
 
-  const togglePlay = useCallback(async () => {
+  const pause = useCallback(() => {
+    fadeTo(0);
+    stopTimeTracking();
+    setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setPlaySource(null);
+    }, FADE_DURATION);
+  }, [fadeTo, stopTimeTracking]);
+
+  const togglePlay = useCallback(async (source: "orb" | "portfolio" = "orb") => {
     const el = audioRef.current;
     if (!el) return false;
 
-    if (audioContextRef.current?.state === "suspended") {
-      await audioContextRef.current.resume();
+    ensureAudioContext();
+
+    if (playSource && playSource !== source) {
+      stopCurrentSource();
+      await new Promise((r) => setTimeout(r, FADE_DURATION + 50));
     }
 
     if (el.paused) {
@@ -113,35 +208,56 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         el.volume = 0;
         await el.play();
         setIsPlaying(true);
+        setPlaySource(source);
         setHasPlayedAtLeastOnce(true);
-        fadeTo(volume);
+        fadeTo(Math.pow(volume, 2));
+        startTimeTracking();
         return true;
       } catch {
-        /* autoplay blocked — ignore */
         return false;
       }
     } else {
-      fadeTo(0);
-      setTimeout(() => {
-        el.pause();
-        setIsPlaying(false);
-      }, FADE_DURATION);
-      return true;
+      if (playSource === source) {
+        fadeTo(0);
+        stopTimeTracking();
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+          setIsPlaying(false);
+          setPlaySource(null);
+        }, FADE_DURATION);
+        return true;
+      } else {
+        stopCurrentSource();
+        return true;
+      }
     }
-  }, [fadeTo, volume]);
+  }, [playSource, stopCurrentSource, ensureAudioContext, fadeTo, volume, startTimeTracking]);
 
-  /* keep audio element volume in sync when volume state changes while playing */
-  useEffect(() => {
-    const el = audioRef.current;
-    if (el && !el.paused) {
-      el.volume = volume;
+  const seek = useCallback((time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
     }
-  }, [volume]);
+  }, []);
 
-  /* cleanup */
+  const setVolume = useCallback((v: number) => {
+    const clamped = Math.max(0, Math.min(1, v));
+    _setVolume(clamped);
+    if (audioRef.current) {
+      audioRef.current.volume = Math.pow(clamped, 2);
+    }
+  }, []);
+
+  const setCurrentTrackFn = useCallback((track: string) => {
+    setCurrentTrack(track);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (fadeRef.current) clearInterval(fadeRef.current);
+      if (timeUpdateRef.current) cancelAnimationFrame(timeUpdateRef.current);
     };
   }, []);
 
@@ -149,13 +265,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     <AudioCtx.Provider
       value={{
         isPlaying,
+        playSource,
         volume,
         currentTrack,
+        currentTime,
+        duration,
         hasPlayedAtLeastOnce,
+        play,
+        pause,
         togglePlay,
+        seek,
         setVolume,
         setCurrentTrack: setCurrentTrackFn,
-        registerAudio,
         getFrequencyData,
       }}
     >

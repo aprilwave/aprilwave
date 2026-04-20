@@ -4,7 +4,10 @@ import { Music, Pause, Play } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 
 export function MusicOrb() {
-  const { isPlaying, volume, currentTrack, togglePlay, setVolume } = useAudio();
+  const { isPlaying, playSource, volume, currentTrack, togglePlay, setVolume } = useAudio();
+  const isOrbPlaying = playSource === "orb" && isPlaying;
+  const isPortfolioPlaying = playSource === "portfolio" && isPlaying;
+  const isAnyPlaying = isOrbPlaying || isPortfolioPlaying;
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
@@ -17,7 +20,6 @@ export function MusicOrb() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // We track drag movement to differentiate between tap (play/pause) and drag (volume)
   const dragStartY = useRef(0);
   const dragHasMoved = useRef(false);
   const dragTargetIsOrb = useRef(false);
@@ -27,13 +29,10 @@ export function MusicOrb() {
       if (!sliderTrackRef.current) return;
       const rect = sliderTrackRef.current.getBoundingClientRect();
       const isMobile = window.innerWidth < 1024;
-
       let fraction: number;
       if (isMobile && clientX !== undefined) {
-        // Mobile: horizontal (left to right)
         fraction = (clientX - rect.left) / rect.width;
       } else {
-        // Desktop: vertical (bottom to top)
         fraction = 1 - (clientY - rect.top) / rect.height;
       }
       setVolume(Math.max(0, Math.min(1, fraction)));
@@ -43,27 +42,21 @@ export function MusicOrb() {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
     dragStartY.current = e.clientY;
     dragHasMoved.current = false;
-
-    // Direct clicks on track vs orb
     const isOrb = !!(e.target as Element).closest("#music-orb-btn");
     dragTargetIsOrb.current = isOrb;
-
     if (!isOrb) {
-      // Clean snap to clicked position on the track
       volumeFromPointer(e.clientY, e.clientX);
-      dragHasMoved.current = true; // prevent firing togglePlay on a track click
+      dragHasMoved.current = true;
     }
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-
     const isMobile = window.innerWidth < 1024;
     if (isMobile) {
       if (Math.abs(e.clientX - dragStartY.current) > 3) {
@@ -74,7 +67,6 @@ export function MusicOrb() {
         dragHasMoved.current = true;
       }
     }
-
     volumeFromPointer(e.clientY, e.clientX);
   };
 
@@ -82,15 +74,12 @@ export function MusicOrb() {
     if (!isDragging) return;
     setIsDragging(false);
     e.currentTarget.releasePointerCapture(e.pointerId);
-
-    // If it's a tap on the orb vs the track
     if (!dragHasMoved.current && dragTargetIsOrb.current) {
-      togglePlay();
+      togglePlay("orb");
     }
   };
 
   const volumePct = Math.round(volume * 100);
-
   const orbSize = 52;
   const isMobileCurrent = isMobile;
 
@@ -122,7 +111,6 @@ export function MusicOrb() {
       onPointerEnter={() => setIsHovered(true)}
       onPointerLeave={() => setIsHovered(false)}
     >
-      {/* Mobile: percentage below track */}
       <div
         className="lg:hidden mb-2 text-[11px] font-bold tracking-wider tabular-nums transition-all duration-300"
         style={{
@@ -133,7 +121,6 @@ export function MusicOrb() {
         {volumePct}%
       </div>
 
-      {/* Desktop: percentage above track */}
       <div
         className="hidden lg:block absolute text-[11px] font-bold tracking-wider tabular-nums transition-all duration-300"
         style={{
@@ -148,7 +135,6 @@ export function MusicOrb() {
         {volumePct}%
       </div>
 
-      {/* Slider Track */}
       <div
         ref={sliderTrackRef}
         className="relative touch-none cursor-pointer"
@@ -169,7 +155,6 @@ export function MusicOrb() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        {/* Desktop: vertical track with clipPath */}
         <div
             className="hidden lg:absolute lg:block pointer-events-none"
             style={{
@@ -198,7 +183,6 @@ export function MusicOrb() {
           />
         </div>
 
-        {/* Mobile: horizontal track */}
         <div
           className="lg:hidden absolute inset-0 pointer-events-none rounded-full"
           style={{
@@ -222,7 +206,6 @@ export function MusicOrb() {
           />
         </div>
 
-        {/* Orb - positioned correctly for mobile/desktop */}
         <motion.div
           id="music-orb-btn"
           className="absolute z-10 rounded-full flex items-center justify-center outline-none border border-white/10 shadow-xl backdrop-blur-xl"
@@ -244,18 +227,17 @@ export function MusicOrb() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           animate={{
-            boxShadow: isPlaying
+            boxShadow: isAnyPlaying
               ? "0 0 20px hsl(var(--primary) / 0.4)"
               : "none",
           }}
         >
-          {/* Track name - desktop only, appears to right */}
           <div
             className="hidden lg:block absolute pointer-events-none transition-opacity duration-500 whitespace-nowrap"
             style={{
               left: "100%",
               marginLeft: "14px",
-              opacity: isPlaying || isHovered || isDragging ? 1 : 0,
+              opacity: isAnyPlaying || isHovered || isDragging ? 1 : 0,
             }}
           >
             <span
@@ -266,8 +248,7 @@ export function MusicOrb() {
             </span>
           </div>
 
-          {/* Entrance ripples */}
-          {!isPlaying && (
+          {!isAnyPlaying && (
             <>
               <motion.span
                 className="absolute inset-0 rounded-full border border-primary/40 pointer-events-none"
@@ -295,9 +276,9 @@ export function MusicOrb() {
           )}
 
           <AnimatePresence mode="wait">
-            {isHovered || isDragging || !isPlaying ? (
+            {isHovered || isDragging || !isAnyPlaying ? (
               <motion.span
-                key={isPlaying ? "pause" : "play"}
+                key={isAnyPlaying ? "pause" : "play"}
                 initial={{ opacity: 0, scale: 0.6, rotate: -30 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 exit={{ opacity: 0, scale: 0.6, rotate: 30 }}
@@ -305,7 +286,7 @@ export function MusicOrb() {
                 className="relative z-10 pointer-events-none"
                 style={{ color: "hsl(var(--foreground) / 0.8)" }}
               >
-                {isPlaying ? (
+                {isAnyPlaying ? (
                   <Pause className="w-5 h-5" />
                 ) : (
                   <Play className="w-5 h-5 ml-0.5" />
