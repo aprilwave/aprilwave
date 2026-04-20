@@ -2,25 +2,38 @@ import { useEffect, useRef } from "react";
 
 export function MouseGlow() {
   const glowRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
+  const targetRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!glowRef.current) return;
-      glowRef.current.style.left = `${e.clientX}px`;
-      glowRef.current.style.top = `${e.clientY}px`;
-      glowRef.current.style.opacity = "1";
+      targetRef.current = { x: e.clientX, y: e.clientY };
     };
 
     const handleMouseLeave = () => {
       if (glowRef.current) glowRef.current.style.opacity = "0";
     };
 
+    function rafLoop() {
+      if (glowRef.current) {
+        glowRef.current.style.left = `${targetRef.current.x}px`;
+        glowRef.current.style.top = `${targetRef.current.y}px`;
+        glowRef.current.style.opacity = "1";
+      }
+      rafRef.current = requestAnimationFrame(rafLoop);
+    }
+
     window.addEventListener("mousemove", handleMouseMove);
     document.documentElement.addEventListener("mouseleave", handleMouseLeave);
+    rafRef.current = requestAnimationFrame(rafLoop);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
+      document.documentElement.removeEventListener(
+        "mouseleave",
+        handleMouseLeave,
+      );
+      cancelAnimationFrame(rafRef.current);
     };
   }, []);
 

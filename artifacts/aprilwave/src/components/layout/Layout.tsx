@@ -1,5 +1,6 @@
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { GlowLine } from "@/components/GlowLine";
 import { MouseGlow } from "@/components/MouseGlow";
 import { BackgroundMusic } from "@/components/BackgroundMusic";
 import { MusicOrb } from "@/components/MusicOrb";
@@ -15,21 +16,20 @@ export function Layout({ children }: { children: ReactNode }) {
   // framer-motion can snapshot element positions before the page moves
   useEffect(() => {
     const id = requestAnimationFrame(() =>
-      window.scrollTo({ top: 0, behavior: "instant" })
+      window.scrollTo({ top: 0, behavior: "instant" }),
     );
     return () => cancelAnimationFrame(id);
   }, [location]);
 
   return (
     <AudioProvider>
-      <div className="min-h-screen flex flex-col relative selection:bg-primary selection:text-primary-foreground">
+      <div className="min-h-screen flex flex-col relative selection-bg-primary selection:text-primary-foreground">
+        <GlowLine />
         <BackgroundMusic />
         <MouseGlow />
         <Navbar />
         <MusicOrb />
-        <main className="flex-1 w-full relative z-10">
-          {children}
-        </main>
+        <main className="flex-1 w-full relative z-10">{children}</main>
         <Footer />
       </div>
     </AudioProvider>

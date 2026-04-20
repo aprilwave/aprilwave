@@ -16,7 +16,7 @@ export function BackgroundMusic() {
   /* Attempt autoplay, falling back to first interaction */
   const startPlayback = useCallback(async () => {
     if (hasStartedRef.current || !audioRef.current) return;
-    
+
     if (!isPlaying) {
       const success = await togglePlay();
       if (success) {
@@ -30,16 +30,16 @@ export function BackgroundMusic() {
       if (!hasStartedRef.current) startPlayback();
     };
 
-    window.addEventListener("click", handleInteraction, { capture: true });
-    window.addEventListener("scroll", handleInteraction, { capture: true });
-    window.addEventListener("keydown", handleInteraction, { capture: true });
-    window.addEventListener("touchstart", handleInteraction, { capture: true });
+    window.addEventListener("click", handleInteraction);
+    window.addEventListener("scroll", handleInteraction, { passive: true });
+    window.addEventListener("keydown", handleInteraction);
+    window.addEventListener("touchstart", handleInteraction);
 
     return () => {
-      window.removeEventListener("click", handleInteraction, { capture: true });
-      window.removeEventListener("scroll", handleInteraction, { capture: true });
-      window.removeEventListener("keydown", handleInteraction, { capture: true });
-      window.removeEventListener("touchstart", handleInteraction, { capture: true });
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("scroll", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
     };
   }, [startPlayback]);
 
