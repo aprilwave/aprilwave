@@ -1,7 +1,7 @@
 // import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, AudioWaveform, Star } from "lucide-react";
-import { ViewTransitionLink } from "@/components/ViewTransitionLink";
+import { Link } from "wouter";
 
 export default function Home() {
   return (
@@ -16,7 +16,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0 }}
-            className="font-brand text-primary text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4 view-transition-hero"
+            className="font-brand text-primary text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-4"
           >
             Aprilwave
           </motion.h2>
@@ -49,21 +49,20 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="flex flex-col sm:flex-row items-center gap-4"
           >
-            <ViewTransitionLink
+            <Link
               href="/portfolio"
-              transitionName="portfolio-header"
               className="px-8 py-4 rounded-full bg-foreground text-background font-medium hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-xl hover:shadow-primary/30 hover:-translate-y-1 flex items-center gap-2"
             >
               <Play className="w-4 h-4 fill-current" />
               Explore My Work
-            </ViewTransitionLink>
-            <ViewTransitionLink
+            </Link>
+            <Link
               href="/contact"
               className="px-8 py-4 rounded-full glass-panel font-medium hover:bg-white/60 transition-all duration-300 flex items-center gap-2 group text-foreground"
             >
               Contact Me
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </ViewTransitionLink>
+            </Link>
           </motion.div>
         </div>
       </section>

@@ -1,9 +1,8 @@
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { ViewTransitionLink } from "@/components/ViewTransitionLink";
 
 const links = [
   { href: "/", label: "About" },
@@ -139,10 +138,9 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <ViewTransitionLink
+        <Link
           href="/"
-          transitionName="brand"
-          className="font-brand font-bold text-lg tracking-wider group view-transition-brand"
+          className="font-brand font-bold text-lg tracking-wider group"
           aria-label="Aprilwave home"
         >
           <motion.span
@@ -152,7 +150,7 @@ export function Navbar() {
           >
             <span className="text-primary">Aprilwave</span>
           </motion.span>
-        </ViewTransitionLink>
+        </Link>
 
         {/* Desktop Nav */}
         <div
@@ -181,7 +179,7 @@ export function Navbar() {
             const isActive = location === link.href && !isContact;
             const isAbout = link.label === "About";
             return (
-              <ViewTransitionLink
+              <Link
                 key={link.href}
                 href={link.href}
                 data-navhref={link.href}
@@ -192,12 +190,12 @@ export function Navbar() {
                 )}
               >
                 {link.label}
-              </ViewTransitionLink>
+              </Link>
             );
           })}
 
           {/* Let's Talk Button */}
-          <ViewTransitionLink
+          <Link
             href="/contact"
             className={cn(
               "relative z-10 px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5",
@@ -207,7 +205,7 @@ export function Navbar() {
             )}
           >
             <span className="relative z-10">Let's Talk</span>
-          </ViewTransitionLink>
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -232,7 +230,7 @@ export function Navbar() {
             {links.map((link) => {
               const isAbout = link.label === "About";
               return (
-                <ViewTransitionLink
+                <Link
                   key={link.href}
                   href={link.href}
                   onClick={isAbout ? handleAboutClick : undefined}
@@ -242,15 +240,15 @@ export function Navbar() {
                   )}
                 >
                   {link.label}
-                </ViewTransitionLink>
+                </Link>
               );
             })}
-            <ViewTransitionLink
+            <Link
               href="/contact"
               className="font-display text-2xl font-medium text-foreground"
             >
               Let's Talk
-            </ViewTransitionLink>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
