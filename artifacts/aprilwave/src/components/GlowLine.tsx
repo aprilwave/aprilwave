@@ -5,8 +5,6 @@ const VH = 600;
 
 const RANDOM_PHASE_OFFSET = Math.random() * 10000;
 
-// Baseline Y positions for control points (% of VH)
-// Line sits around 58% down — mostly horizontal, gently wandering
 const BASE_ANCHORS = [
   { x: 0, y: 0.56 },
   { x: 0.18, y: 0.52 },
@@ -18,7 +16,6 @@ const BASE_ANCHORS = [
 ];
 
 function buildPath(anchors: { x: number; y: number }[], t: number): string {
-  // Add very subtle time-driven Y drift to each anchor independently
   const pts = anchors.map((a, i) => ({
     x: a.x * VW,
     y:
@@ -38,13 +35,32 @@ function buildPath(anchors: { x: number; y: number }[], t: number): string {
   return d;
 }
 
+// Palette: only the 3 brand hues. Bridges are lighter/darker variants of the same hue.
+// Peach softened to match new primary (less saturated, slightly lighter)
+const PALETTE = [
+  { h: 221, s: 83, l: 82 },  // 0  blue anchor
+  { h: 221, s: 83, l: 82 },  // 1  blue
+  { h: 221, s: 65, l: 86 },  // 2  soft blue bridge (still hue 221)
+  { h: 25,  s: 72, l: 80 },  // 3  peach — softened
+  { h: 25,  s: 68, l: 84 },  // 4  light peach bridge
+  { h: 35,  s: 75, l: 86 },  // 5  accent — softened
+  { h: 25,  s: 68, l: 84 },  // 6  light peach bridge
+  { h: 25,  s: 72, l: 80 },  // 7  peach — softened
+  { h: 221, s: 65, l: 86 },  // 8  soft blue bridge
+  { h: 221, s: 83, l: 82 },  // 9  blue
+  { h: 221, s: 83, l: 82 },  // 10 blue anchor
+];
+
+const BASE_OFFSETS = [0, 12, 22, 32, 42, 50, 58, 68, 78, 88, 100];
+
 export function GlowLine() {
   const ambientRef = useRef<SVGPathElement>(null);
   const midRef = useRef<SVGPathElement>(null);
   const coreRef = useRef<SVGPathElement>(null);
   const blurRef = useRef<SVGFEGaussianBlurElement>(null);
   const blurMidRef = useRef<SVGFEGaussianBlurElement>(null);
-  const gradRef = useRef<SVGLinearGradientElement>(null);
+  const glowGradRef = useRef<SVGLinearGradientElement>(null);
+  const lineStopsRef = useRef<SVGStopElement[]>([]);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
@@ -56,9 +72,7 @@ export function GlowLine() {
 
       const d = buildPath(BASE_ANCHORS, t);
 
-      // Ambient glow blur pulses: 32 ± 10
       const blurAmb = 32 + 10 * Math.sin(t * 0.00035);
-      // Mid glow blur pulses: 8 ± 3
       const blurMid = 8 + 3 * Math.sin(t * 0.00048 + 1.2);
 
       if (ambientRef.current) ambientRef.current.setAttribute("d", d);
@@ -69,10 +83,48 @@ export function GlowLine() {
       if (blurMidRef.current)
         blurMidRef.current.setAttribute("stdDeviation", String(blurMid));
 
-      // Pulse gradient stop opacity: 0.18 ± 0.08
-      const gradStrength = 0.3 + 0.1 * Math.sin(t * 0.00042 + 0.6);
-      if (gradRef.current) {
-        const stops = gradRef.current.querySelectorAll("stop");
+      // --- Aurora wave gradient animation ---
+      const stops = lineStopsRef.current;
+      if (stops.length === 11) {
+        const auroraPhase = t * 0.00018;
+        // Global slide: pushes the entire colour pattern left/right (±20%)
+        const globalShift = Math.sin(auroraPhase) * 20;
+
+        const raw = BASE_OFFSETS.map((base, i) => {
+          // Ribbon lag: each stop trails the global shift by a different phase
+          const waveLag = Math.sin(auroraPhase * 0.7 + i * 0.6) * 6;
+          // Tiny individual breathing
+          const microDrift = Math.sin(t * 0.00031 + i * 1.7) * 2;
+          return base + globalShift + waveLag + microDrift;
+        });
+
+        // Enforce monotonicity with a 2.5% minimum gap so stops never cross
+        const clamped: number[] = [];
+        for (let i = 0; i < raw.length; i++) {
+          const min = i === 0 ? 0 : clamped[i - 1] + 2.5;
+          const max = i === raw.length - 1 ? 100 : raw[i + 1] - 2.5;
+          clamped[i] = Math.max(min, Math.min(max, raw[i]));
+        }
+
+        for (let i = 0; i < 11; i++) {
+          const base = PALETTE[i];
+          const hueShift =
+            i === 5
+              ? Math.sin(t * 0.00052 + i) * 3
+              : Math.sin(t * 0.00042 + i * 1.7) * 2;
+
+          const h = Math.round(base.h + hueShift);
+          const color = `hsl(${h} ${base.s}% ${base.l}%)`;
+
+          stops[i].setAttribute("offset", `${clamped[i]}%`);
+          stops[i].setAttribute("stop-color", color);
+        }
+      }
+
+      // Pulse ambient glow gradient opacity
+      const gradStrength = 0.28 + 0.08 * Math.sin(t * 0.00042 + 0.6);
+      if (glowGradRef.current) {
+        const stops = glowGradRef.current.querySelectorAll("stop");
         stops[1]?.setAttribute("stop-opacity", String(gradStrength * 0.7));
         stops[2]?.setAttribute("stop-opacity", String(gradStrength));
         stops[3]?.setAttribute("stop-opacity", String(gradStrength));
@@ -86,17 +138,22 @@ export function GlowLine() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  const setLineStopRef = (el: SVGStopElement | null, idx: number) => {
+    if (el) lineStopsRef.current[idx] = el;
+  };
+
   return (
-    <div className="fixed inset-0 pointer-events-none select-none overflow-hidden -z-10">
+    <div className="fixed inset-0 pointer-events-none select-none overflow-hidden -z-10" aria-hidden="true">
       <svg
         width="100vw"
         height="100vh"
         viewBox={`0 0 ${VW} ${VH}`}
         preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
+        style={{ willChange: "contents" }}
       >
         <defs>
-          {/* Horizontal color gradient for the stroke */}
+          {/* Horizontal color gradient — JS-animated for organic chaos */}
           <linearGradient
             id="lineColorGrad"
             x1="0"
@@ -105,22 +162,20 @@ export function GlowLine() {
             y2="0"
             gradientUnits="objectBoundingBox"
           >
-            <stop offset="0%" stopColor="hsl(221 83% 82%)" />
-            <stop offset="25%" stopColor="hsl(25 85% 78%)" />
-            <stop offset="50%" stopColor="hsl(35 85% 85%)" />
-            <stop offset="75%" stopColor="hsl(25 85% 78%)" />
-            <stop offset="100%" stopColor="hsl(221 83% 82%)" />
-            <animateTransform
-              attributeName="gradientTransform"
-              type="translate"
-              from="-1 0"
-              to="1 0"
-              dur="6s"
-              repeatCount="indefinite"
-            />
+            <stop ref={(el) => setLineStopRef(el, 0)}  offset="0%"   stopColor="hsl(221 83% 82%)" />
+            <stop ref={(el) => setLineStopRef(el, 1)}  offset="12%"  stopColor="hsl(221 83% 82%)" />
+            <stop ref={(el) => setLineStopRef(el, 2)}  offset="22%"  stopColor="hsl(221 65% 86%)" />
+            <stop ref={(el) => setLineStopRef(el, 3)}  offset="32%"  stopColor="hsl(25 72% 80%)" />
+            <stop ref={(el) => setLineStopRef(el, 4)}  offset="42%"  stopColor="hsl(25 68% 84%)" />
+            <stop ref={(el) => setLineStopRef(el, 5)}  offset="50%"  stopColor="hsl(35 75% 86%)" />
+            <stop ref={(el) => setLineStopRef(el, 6)}  offset="58%"  stopColor="hsl(25 68% 84%)" />
+            <stop ref={(el) => setLineStopRef(el, 7)}  offset="68%"  stopColor="hsl(25 72% 80%)" />
+            <stop ref={(el) => setLineStopRef(el, 8)}  offset="78%"  stopColor="hsl(221 65% 86%)" />
+            <stop ref={(el) => setLineStopRef(el, 9)}  offset="88%"  stopColor="hsl(221 83% 82%)" />
+            <stop ref={(el) => setLineStopRef(el, 10)} offset="100%" stopColor="hsl(221 83% 82%)" />
           </linearGradient>
 
-          {/* Vertical gradient for the ambient glow rect — fills up/down from the line */}
+          {/* Vertical gradient for the ambient glow rect */}
           <linearGradient
             id="glowAreaGrad"
             x1="0"
@@ -128,19 +183,19 @@ export function GlowLine() {
             x2="0"
             y2={VH}
             gradientUnits="userSpaceOnUse"
-            ref={gradRef}
+            ref={glowGradRef}
           >
-            <stop offset="0%" stopColor="transparent" stopOpacity="0" />
+            <stop offset="0%" stopColor="hsl(221 83% 82%)" stopOpacity="0" />
             <stop
               offset="20%"
               stopColor="hsl(221 83% 82%)"
-              stopOpacity="0.22"
+              stopOpacity="0.18"
             />
-            <stop offset="35%" stopColor="hsl(25 85% 78%)" stopOpacity="0.32" />
-            <stop offset="65%" stopColor="hsl(25 85% 78%)" stopOpacity="0.32" />
-            <stop offset="80%" stopColor="hsl(35 85% 85%)" stopOpacity="0.22" />
-            <stop offset="92%" stopColor="transparent" stopOpacity="0" />
-            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+            <stop offset="35%" stopColor="hsl(25 72% 80%)" stopOpacity="0.28" />
+            <stop offset="65%" stopColor="hsl(25 72% 80%)" stopOpacity="0.28" />
+            <stop offset="75%" stopColor="hsl(35 75% 86%)" stopOpacity="0.18" />
+            <stop offset="90%" stopColor="hsl(35 75% 86%)" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="hsl(35 75% 86%)" stopOpacity="0" />
           </linearGradient>
 
           {/* Ambient glow filter */}
@@ -158,9 +213,10 @@ export function GlowLine() {
           <filter id="glowMid" x="-5%" y="-300%" width="110%" height="700%">
             <feGaussianBlur ref={blurMidRef} stdDeviation="8" result="blur" />
           </filter>
+
         </defs>
 
-        {/* Background gradient slab — vertical color emanating from line area */}
+        {/* Background gradient slab */}
         <rect x="0" y="0" width={VW} height={VH} fill="url(#glowAreaGrad)" />
 
         {/* Layer 1: wide ambient haze */}
@@ -168,8 +224,8 @@ export function GlowLine() {
           ref={ambientRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="100"
-          opacity="0.28"
+          strokeWidth="120"
+          opacity="0.42"
           filter="url(#glowAmbient)"
         />
 
@@ -178,8 +234,8 @@ export function GlowLine() {
           ref={midRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="22"
-          opacity="0.55"
+          strokeWidth="28"
+          opacity="0.72"
           filter="url(#glowMid)"
         />
 
@@ -188,8 +244,8 @@ export function GlowLine() {
           ref={coreRef}
           fill="none"
           stroke="url(#lineColorGrad)"
-          strokeWidth="3.5"
-          opacity="0.90"
+          strokeWidth="5"
+          opacity="0.95"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

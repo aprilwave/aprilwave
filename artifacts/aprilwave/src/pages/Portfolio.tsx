@@ -8,6 +8,7 @@ interface Track {
   title: string;
   file: string;
   isPersonalWork?: boolean;
+  description?: string;
 }
 
 const categories = [
@@ -36,7 +37,10 @@ const categories = [
   {
     name: "Game/Film Compositions",
     folder: "game-film",
-    tracks: [],
+    tracks: [
+      { id: "gf-1", title: "Atomic", file: "atomic.mp3", description: "A short hybrid cinematic piece, inspired by timbres from Oppenheimer. Welcome to the site!" },
+      { id: "gf-2", title: "Mad Mage", file: "mad-mage.mp3", description: "Dark orchestral fantasy, meant to serve as a Menu score - inspired by Baldur's Gate" },
+    ],
   },
   {
     name: "Game Audio/Sound Design",
@@ -50,7 +54,7 @@ const categories = [
   },
 ];
 
-const BAR_COUNT = 20;
+const BAR_COUNT = 30;
 const MIN_BIN = 2;
 const MAX_BIN = 80;
 
@@ -97,6 +101,7 @@ export default function Portfolio() {
     seek,
     setVolume,
     getFrequencyData,
+    switchSource,
     isPlaying: ctxIsPlaying,
     playSource,
     volume,
@@ -108,8 +113,9 @@ export default function Portfolio() {
   const activeCatData = categories.find((c) => c.name === activeCategory) || categories[0];
   const hasTracks = activeCatData.tracks.length > 0;
   const isPortfolioPlaying = playSource === "portfolio" && ctxIsPlaying;
+  const isAmbiencePlaying = playSource === "orb" && ctxIsPlaying;
   const currentTrack = shuffledTracks[currentTrackIndex];
-  const activeTrackName = isPortfolioPlaying ? ctxTrackName : currentTrack?.title;
+  const activeTrackName = ctxIsPlaying ? ctxTrackName : currentTrack?.title;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -131,11 +137,18 @@ export default function Portfolio() {
   }, [showInfo]);
 
   useEffect(() => {
-    if (hasTracks) {
-      setShuffledTracks(shuffleArray(activeCatData.tracks));
-      setCurrentTrackIndex(0);
-      currentIndexRef.current = 0;
+    if (!hasTracks) return;
+    const sessionKey = `portfolio-shuffled-${activeCategory}`;
+    const cached = sessionStorage.getItem(sessionKey);
+    if (cached) {
+      setShuffledTracks(JSON.parse(cached));
+    } else {
+      const shuffled = shuffleArray(activeCatData.tracks);
+      setShuffledTracks(shuffled);
+      sessionStorage.setItem(sessionKey, JSON.stringify(shuffled));
     }
+    setCurrentTrackIndex(0);
+    currentIndexRef.current = 0;
   }, [activeCategory, hasTracks]);
 
   useEffect(() => {
@@ -153,6 +166,25 @@ export default function Portfolio() {
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, [isPortfolioPlaying, getFrequencyData]);
+
+  // Orb → Portfolio auto-transfer: switch category to Game/Film when Atomic is playing via orb
+  useEffect(() => {
+    if (playSource === "orb" && ctxTrackName === "Atomic" && activeCategory !== "Game/Film Compositions") {
+      setActiveCategory("Game/Film Compositions");
+      switchSource("portfolio");
+    }
+  }, [playSource, ctxTrackName, activeCategory, switchSource]);
+
+  // After shuffle loads for Game/Film, find the Atomic track index
+  useEffect(() => {
+    if (activeCategory === "Game/Film Compositions" && shuffledTracks.length > 0 && ctxTrackName === "Atomic") {
+      const idx = shuffledTracks.findIndex((t) => t.title === "Atomic");
+      if (idx >= 0 && idx !== currentTrackIndex) {
+        setCurrentTrackIndex(idx);
+        currentIndexRef.current = idx;
+      }
+    }
+  }, [activeCategory, shuffledTracks, ctxTrackName, currentTrackIndex]);
 
   const handleTogglePlay = async () => {
     if (!currentTrack) return;
@@ -251,6 +283,8 @@ export default function Portfolio() {
             <button
               ref={infoButtonRef}
               onClick={() => setShowInfo(!showInfo)}
+              aria-expanded={showInfo}
+              aria-controls="portfolio-info-panel"
               className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 glass-panel active:scale-95 active:duration-150 text-muted-foreground hover:bg-white/10 hover:text-foreground"
             >
               <Info className="w-4 h-4" />
@@ -259,14 +293,15 @@ export default function Portfolio() {
             <AnimatePresence>
               {showInfo && (
                 <motion.div
+                  id="portfolio-info-panel"
                   initial={{ opacity: 0, x: -10, scale: 0.95 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, x: -10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute left-full ml-3 top-0 z-50 p-4 rounded-2xl glass-panel w-[500px]"
+                  className="absolute !absolute left-0 sm:left-full sm:ml-3 top-full mt-3 sm:top-0 sm:mt-0 z-50 p-4 rounded-2xl glass-panel w-[90vw] sm:w-[500px] max-w-[500px]"
                 >
                   <p className="text-sm text-muted-foreground italic">
-                    The following audio samples are snippets from previously done works. Due to NDAs and similar agreements, the length is purposely kept short. If you are one of my previous clients finding this content and would like any of your samples removed, please feel free to reach out.
+                    Some of the following audio samples are snippets from previously done works. Due to NDAs and similar agreements, their length is purposely kept short. If you are one of my previous clients finding this content and would like any of your samples removed, please feel free to reach out.
                   </p>
                 </motion.div>
               )}
@@ -281,7 +316,7 @@ export default function Portfolio() {
             className="text-center py-20"
           >
             <p className="text-muted-foreground text-lg">No audio files in this category yet.</p>
-            <p className="text-muted-foreground/60 text-sm mt-2">Check back soon for updates.</p>
+            <p className="text-muted-foreground text-sm mt-2">Check back soon for updates.</p>
           </motion.div>
         ) : (
           <div className="max-w-2xl mx-auto space-y-6">
@@ -293,108 +328,140 @@ export default function Portfolio() {
             >
               <div className="text-center mb-6">
                 <span className="text-xs uppercase tracking-widest text-muted-foreground">
-                  {activeCategory}
+                  {isAmbiencePlaying ? "Ambience" : activeCategory}
                 </span>
                 <h2 className="font-display text-2xl font-bold mt-2">{activeTrackName}</h2>
+                {currentTrack?.description && (
+                  <p className="text-xs text-muted-foreground italic mt-1.5">{currentTrack.description}</p>
+                )}
               </div>
 
-              <div className="flex items-end justify-center gap-1 h-16 mb-6">
-                {spectrumData.length > 0
-                  ? spectrumData.map((height, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ height: `${Math.max(5, height * 100)}%` }}
-                        transition={{ duration: 0.08, ease: "easeOut" }}
-                        className="flex-1 rounded-sm bg-gradient-to-t from-primary to-primary"
-                        style={{ minWidth: 3 }}
-                      />
-                    ))
-                  : Array.from({ length: BAR_COUNT }, (_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ height: "15%" }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 0.8,
-                          delay: i * 0.04,
-                          ease: "easeInOut",
-                        }}
-                        className="flex-1 rounded-sm bg-gradient-to-t from-primary/40 to-primary/20"
-                        style={{ minWidth: 3 }}
-                      />
-                    ))}
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-10 text-right">
-                    {formatTime(currentTime)}
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={duration || 100}
-                    value={currentTime}
-                    onChange={handleSeek}
-                    className="flex-1 h-1 accent-primary cursor-pointer"
-                  />
-                  <span className="text-xs text-muted-foreground w-10">
-                    {formatTime(duration)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-center gap-4">
-                  <button
-                    onClick={() => {
-                      if (currentTrackIndex > 0) {
-                        playTrack(currentTrackIndex - 1);
-                      }
-                    }}
-                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              <AnimatePresence mode="wait">
+                {isAmbiencePlaying ? (
+                  <motion.div
+                    key="ambience"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-center text-sm text-muted-foreground py-4"
                   >
-                    <SkipBack className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={handleTogglePlay}
-                    className="p-4 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                    Ambience is playing — control via the orb
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="controls"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
                   >
-                    {isPortfolioPlaying ? (
-                      <Pause className="w-6 h-6 fill-current" />
-                    ) : (
-                      <Play className="w-6 h-6 fill-current ml-0.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (currentTrackIndex < shuffledTracks.length - 1) {
-                        playTrack(currentTrackIndex + 1);
-                      }
-                    }}
-                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                  >
-                    <SkipForward className="w-5 h-5" />
-                  </button>
-                </div>
+                      <div className="flex items-end justify-center gap-1 h-16 mb-6">
+                      {spectrumData.length > 0
+                        ? spectrumData.map((height, i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ scaleY: Math.max(0.05, height) }}
+                              transition={{ duration: 0.08, ease: "easeOut" }}
+                              className="flex-1 rounded-sm bg-primary"
+                              style={{ minWidth: 2, height: "100%", transformOrigin: "bottom" }}
+                            />
+                          ))
+                        : Array.from({ length: BAR_COUNT }, (_, i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ scaleY: 0.15 }}
+                              transition={{
+                                repeat: Infinity,
+                                duration: 0.8,
+                                delay: i * 0.04,
+                                ease: "easeInOut",
+                              }}
+                              className="flex-1 rounded-sm bg-primary/30"
+                              style={{ minWidth: 2, height: "100%", transformOrigin: "bottom" }}
+                            />
+                          ))}
+                    </div>
 
-                <div className="flex items-center justify-center gap-2">
-                  <button onClick={toggleMute} className="p-1">
-                    {isMuted ? (
-                      <VolumeX className="w-4 h-4" />
-                    ) : (
-                      <Volume2 className="w-4 h-4" />
-                    )}
-                  </button>
-                  <input
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    className="w-20 h-1 accent-primary cursor-pointer"
-                  />
-                </div>
-              </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground w-10 text-right">
+                          {formatTime(currentTime)}
+                        </span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={duration || 100}
+                          value={currentTime}
+                          onChange={handleSeek}
+                          className="flex-1 h-1 accent-primary cursor-pointer"
+                        />
+                        <span className="text-xs text-muted-foreground w-10">
+                          {formatTime(duration)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-center gap-4">
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={() => {
+                            if (currentTrackIndex > 0) {
+                              playTrack(currentTrackIndex - 1);
+                            }
+                          }}
+                          aria-label="Previous track"
+                          className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                        >
+                          <SkipBack className="w-5 h-5" />
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={handleTogglePlay}
+                          aria-label={isPortfolioPlaying ? "Pause" : "Play"}
+                          className="p-4 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                        >
+                          {isPortfolioPlaying ? (
+                            <Pause className="w-6 h-6 fill-current" />
+                          ) : (
+                            <Play className="w-6 h-6 fill-current ml-0.5" />
+                          )}
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={() => {
+                            if (currentTrackIndex < shuffledTracks.length - 1) {
+                              playTrack(currentTrackIndex + 1);
+                            }
+                          }}
+                          aria-label="Next track"
+                          className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                        >
+                          <SkipForward className="w-5 h-5" />
+                        </motion.button>
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={toggleMute} aria-label={isMuted ? "Unmute" : "Mute"} className="p-1">
+                          {isMuted ? (
+                            <VolumeX className="w-4 h-4" />
+                          ) : (
+                            <Volume2 className="w-4 h-4" />
+                          )}
+                        </motion.button>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          value={isMuted ? 0 : volume}
+                          onChange={handleVolumeChange}
+                          className="w-20 h-1 accent-primary cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             <motion.div
@@ -419,7 +486,7 @@ export default function Portfolio() {
                   >
                     <span className="text-sm">{track.title}</span>
                     {track.isPersonalWork && (
-                      <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary/80">
+                      <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary">
                         personal work
                       </span>
                     )}

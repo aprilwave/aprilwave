@@ -22,6 +22,7 @@ interface AudioContextValue {
   seek: (time: number) => void;
   setVolume: (v: number) => void;
   setCurrentTrack: (track: string) => void;
+  switchSource: (source: "orb" | "portfolio") => void;
   getFrequencyData: () => Uint8Array;
 }
 
@@ -45,6 +46,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const sourceElementRef = useRef<HTMLAudioElement | null>(null);
   const frequencyDataRef = useRef<Uint8Array>(new Uint8Array(64));
   const timeUpdateRef = useRef<number | null>(null);
+  const lastUiUpdateRef = useRef<number>(0);
+  const currentTimeRef = useRef<number>(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSource, setPlaySource] = useState<"orb" | "portfolio" | null>(null);
@@ -98,8 +101,17 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (timeUpdateRef.current) cancelAnimationFrame(timeUpdateRef.current);
     const tick = () => {
       if (audioRef.current && !audioRef.current.paused) {
-        setCurrentTime(audioRef.current.currentTime);
-        setDuration(audioRef.current.duration || 0);
+        const now = audioRef.current.currentTime;
+        const dur = audioRef.current.duration || 0;
+        currentTimeRef.current = now;
+
+        const nowMs = performance.now();
+        if (nowMs - lastUiUpdateRef.current > 100) {
+          lastUiUpdateRef.current = nowMs;
+          setCurrentTime(now);
+          setDuration(dur);
+        }
+
         timeUpdateRef.current = requestAnimationFrame(tick);
       }
     };
@@ -111,11 +123,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(timeUpdateRef.current);
       timeUpdateRef.current = null;
     }
+    lastUiUpdateRef.current = 0;
   }, []);
 
   const getFrequencyData = useCallback(() => {
     if (analyserRef.current) {
-      analyserRef.current.getByteFrequencyData(frequencyDataRef.current);
+      analyserRef.current.getByteFrequencyData(frequencyDataRef.current as unknown as Uint8Array<ArrayBuffer>);
     }
     return frequencyDataRef.current;
   }, []);
@@ -238,6 +251,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const seek = useCallback((time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
+      currentTimeRef.current = time;
       setCurrentTime(time);
     }
   }, []);
@@ -252,6 +266,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   const setCurrentTrackFn = useCallback((track: string) => {
     setCurrentTrack(track);
+  }, []);
+
+  const switchSource = useCallback((source: "orb" | "portfolio") => {
+    setPlaySource(source);
   }, []);
 
   useEffect(() => {
@@ -277,6 +295,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         seek,
         setVolume,
         setCurrentTrack: setCurrentTrackFn,
+        switchSource,
         getFrequencyData,
       }}
     >

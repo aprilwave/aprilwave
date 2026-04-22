@@ -112,29 +112,11 @@ export function Navbar() {
 
   const logoVisible = location !== "/" || heroPast;
 
-  function handleAboutClick(e: React.MouseEvent) {
-    if (location === "/") {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      e.preventDefault();
-      navigate("/");
-      setTimeout(() => {
-        const aboutSection = document.getElementById("about");
-        if (aboutSection) {
-          const top =
-            aboutSection.getBoundingClientRect().top + window.scrollY - 320;
-          window.scrollTo({ top, behavior: "smooth" });
-        }
-      }, 120);
-    }
-  }
-
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
-        scrolled ? "py-3 glass-panel" : "py-5 bg-transparent",
+        scrolled ? "py-3 glass-panel !fixed" : "py-5 bg-transparent",
       )}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
@@ -170,20 +152,18 @@ export function Navbar() {
             }}
             transition={{
               type: "spring",
-              bounce: 0.2,
+              bounce: 0,
               duration: 0.5,
             }}
           />
 
           {links.map((link) => {
             const isActive = location === link.href && !isContact;
-            const isAbout = link.label === "About";
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 data-navhref={link.href}
-                onClick={isAbout ? handleAboutClick : undefined}
                 className={cn(
                   "relative z-10 py-1 font-medium text-sm transition-colors hover:text-foreground",
                   isActive ? "text-foreground" : "text-muted-foreground",
@@ -228,12 +208,10 @@ export function Navbar() {
             className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border p-6 shadow-xl md:hidden flex flex-col gap-6"
           >
             {links.map((link) => {
-              const isAbout = link.label === "About";
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={isAbout ? handleAboutClick : undefined}
                   className={cn(
                     "font-display text-2xl font-medium",
                     location === link.href ? "text-primary" : "text-foreground",

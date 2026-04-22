@@ -83,6 +83,26 @@ export function MusicOrb() {
   const orbSize = 52;
   const isMobileCurrent = isMobile;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowUp":
+      case "ArrowRight":
+        e.preventDefault();
+        setVolume(Math.min(1, volume + 0.05));
+        break;
+      case "ArrowDown":
+      case "ArrowLeft":
+        e.preventDefault();
+        setVolume(Math.max(0, volume - 0.05));
+        break;
+      case " ":
+      case "Enter":
+        e.preventDefault();
+        togglePlay("orb");
+        break;
+    }
+  };
+
   return (
     <div
       className="fixed z-[60] select-none group"
@@ -110,13 +130,19 @@ export function MusicOrb() {
       }
       onPointerEnter={() => setIsHovered(true)}
       onPointerLeave={() => setIsHovered(false)}
+      tabIndex={0}
+      role="group"
+      aria-label={`Music orb. Current track: ${currentTrack}. Press Space to play or pause. Use arrow keys to adjust volume.`}
+      onKeyDown={handleKeyDown}
     >
       <div
         className="lg:hidden mb-2 text-[11px] font-bold tracking-wider tabular-nums transition-all duration-300"
         style={{
           opacity: isHovered || isDragging ? 1 : 0,
-          color: "hsl(var(--primary))",
+          color: "var(--primary)",
         }}
+        aria-live="polite"
+        aria-atomic="true"
       >
         {volumePct}%
       </div>
@@ -129,8 +155,10 @@ export function MusicOrb() {
           opacity: isHovered || isDragging ? 1 : 0,
           transform:
             isHovered || isDragging ? "translateY(0)" : "translateY(8px)",
-          color: "hsl(var(--primary))",
+          color: "var(--primary)",
         }}
+        aria-live="polite"
+        aria-atomic="true"
       >
         {volumePct}%
       </div>
@@ -162,7 +190,7 @@ export function MusicOrb() {
               height: "200px",
               clipPath: "polygon(10% 0, 90% 0, 65% 100%, 35% 100%)",
               background:
-                "linear-gradient(to bottom, hsl(var(--primary) / 0.15), hsl(var(--accent) / 0.05))",
+                "linear-gradient(to bottom, color-mix(in oklch, var(--primary) 15%, transparent), color-mix(in oklch, var(--accent) 5%, transparent))",
               opacity: isHovered || isDragging ? 1 : 0.3,
               transition: "opacity 0.3s",
               maskImage: "linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
@@ -175,7 +203,7 @@ export function MusicOrb() {
               height: "200px",
               transform: `scaleY(${volume})`,
               background:
-                "linear-gradient(to top, hsl(var(--primary) / 0.4), hsl(var(--accent) / 0.2))",
+                "linear-gradient(to top, color-mix(in oklch, var(--primary) 40%, transparent), color-mix(in oklch, var(--accent) 20%, transparent))",
               clipPath: "polygon(0 0, 100% 0, 65% 100%, 35% 100%)",
               maskImage: "linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
               WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
@@ -187,7 +215,7 @@ export function MusicOrb() {
           className="lg:hidden absolute inset-0 pointer-events-none rounded-full"
           style={{
             background:
-              "linear-gradient(to right, hsl(var(--primary) / 0.15), hsl(var(--accent) / 0.05))",
+              "linear-gradient(to right, color-mix(in oklch, var(--primary) 15%, transparent), color-mix(in oklch, var(--accent) 5%, transparent))",
             opacity: isHovered || isDragging ? 1 : 0.3,
             transition: "opacity 0.3s",
             maskImage: "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
@@ -199,7 +227,7 @@ export function MusicOrb() {
             style={{
               width: `${volume * 100}%`,
               background:
-                "linear-gradient(to right, hsl(var(--primary) / 0.4), hsl(var(--accent) / 0.2))",
+                "linear-gradient(to right, color-mix(in oklch, var(--primary) 40%, transparent), color-mix(in oklch, var(--accent) 20%, transparent))",
               maskImage: "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
               WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
             }}
@@ -208,7 +236,7 @@ export function MusicOrb() {
 
         <motion.div
           id="music-orb-btn"
-          className="absolute z-10 rounded-full flex items-center justify-center outline-none border border-white/10 shadow-xl backdrop-blur-xl"
+          className="absolute z-10 rounded-full flex items-center justify-center border border-white/10 shadow-xl backdrop-blur-xl focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
           style={{
             width: `${orbSize}px`,
             height: `${orbSize}px`,
@@ -221,14 +249,14 @@ export function MusicOrb() {
                   left: `calc(50% - ${orbSize / 2}px)`,
                   top: `calc(${(1 - volume) * (200 - orbSize)}px)`,
                 }),
-            background: "hsl(var(--background) / 0.45)",
+            background: "color-mix(in oklch, var(--background) 45%, transparent)",
             pointerEvents: "auto",
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           animate={{
             boxShadow: isAnyPlaying
-              ? "0 0 20px hsl(var(--primary) / 0.4)"
+              ? "0 0 20px color-mix(in oklch, var(--primary) 40%, transparent)"
               : "none",
           }}
         >
@@ -242,7 +270,7 @@ export function MusicOrb() {
           >
             <span
               className="font-sans font-light italic text-[13px] tracking-wide"
-              style={{ color: "hsl(var(--foreground) / 0.8)" }}
+              style={{ color: "color-mix(in oklch, var(--foreground) 80%, transparent)" }}
             >
               {`'${currentTrack}'`}
             </span>
@@ -284,7 +312,7 @@ export function MusicOrb() {
                 exit={{ opacity: 0, scale: 0.6, rotate: 30 }}
                 transition={{ duration: 0.2 }}
                 className="relative z-10 pointer-events-none"
-                style={{ color: "hsl(var(--foreground) / 0.8)" }}
+                style={{ color: "color-mix(in oklch, var(--foreground) 80%, transparent)" }}
               >
                 {isAnyPlaying ? (
                   <Pause className="w-5 h-5" />
@@ -304,7 +332,7 @@ export function MusicOrb() {
                   rotate: { duration: 4, repeat: Infinity, ease: "linear" },
                 }}
                 className="relative z-10 pointer-events-none"
-                style={{ color: "hsl(var(--foreground) / 0.8)" }}
+                style={{ color: "color-mix(in oklch, var(--foreground) 80%, transparent)" }}
               >
                 <Music className="w-5 h-5" />
               </motion.span>

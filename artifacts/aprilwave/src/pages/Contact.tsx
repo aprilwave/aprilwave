@@ -96,14 +96,20 @@ export default function Contact() {
                 Find me elsewhere
               </h4>
               <div className="flex flex-wrap gap-2 lg:gap-4">
-                {["SoundCloud", "Spotify", "Bandcamp", "Instagram"].map(
+                {[
+                  { name: "Instagram", url: "https://instagram.com/aprilwave.sound" },
+                  { name: "SoundCloud", url: "https://soundcloud.com/aprilwave" },
+                  { name: "Discord", url: "https://discord.gg/aprilwave" },
+                ].map(
                   (social) => (
                     <a
-                      key={social}
-                      href="#"
+                      key={social.name}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="px-4 py-2 rounded-full text-sm font-medium text-foreground glass-panel hover:bg-white/20 border border-white/20"
                     >
-                      {social}
+                      {social.name}
                     </a>
                   ),
                 )}
@@ -134,10 +140,11 @@ export default function Contact() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground ml-1">
+                  <label htmlFor="contact-name" className="text-sm font-medium text-foreground ml-1">
                     Name
                   </label>
                   <input
+                    id="contact-name"
                     {...register("name")}
                     className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground"
                     placeholder="Jane Doe"
@@ -150,10 +157,11 @@ export default function Contact() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground ml-1">
+                  <label htmlFor="contact-email" className="text-sm font-medium text-foreground ml-1">
                     Email
                   </label>
                   <input
+                    id="contact-email"
                     {...register("email")}
                     type="email"
                     className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground"
@@ -168,10 +176,11 @@ export default function Contact() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground ml-1">
+                <label htmlFor="contact-subject" className="text-sm font-medium text-foreground ml-1">
                   Subject
                 </label>
                 <select
+                  id="contact-subject"
                   {...register("subject")}
                   className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground appearance-none"
                 >
@@ -190,10 +199,11 @@ export default function Contact() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground ml-1">
+                <label htmlFor="contact-message" className="text-sm font-medium text-foreground ml-1">
                   Message
                 </label>
                 <textarea
+                  id="contact-message"
                   {...register("message")}
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl bg-background/60 border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground resize-none"
@@ -209,7 +219,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 rounded-xl font-semibold bg-primary text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200 ease-out flex items-center justify-center gap-2 group"
+                className="w-full py-4 rounded-xl font-semibold bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200 ease-out flex items-center justify-center gap-2 group"
               >
                 {isSubmitting ? (
                   <motion.span
