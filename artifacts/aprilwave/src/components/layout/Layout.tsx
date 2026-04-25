@@ -4,11 +4,13 @@ import { GlowLine } from "@/components/GlowLine";
 import { MusicOrb } from "@/components/MusicOrb";
 import { AmbientBlobs } from "@/components/AmbientBlobs";
 import { AudioProvider } from "@/context/AudioContext";
+import { GlobalShortcuts } from "./GlobalShortcuts";
 import { ReactNode } from "react";
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <AudioProvider>
+      <GlobalShortcuts />
       <div className="min-h-screen flex flex-col relative selection:bg-primary selection:text-primary-foreground">
         <a
           href="#main-content"

@@ -4,11 +4,11 @@ import { Play } from "lucide-react";
 
 export function PlayAmbience() {
   const { play, isPlaying, playSource } = useAudio();
-  const isOrbPlaying = playSource === "orb" && isPlaying;
+  const isPortfolioPlaying = playSource === "portfolio" && isPlaying;
 
   return (
     <AnimatePresence>
-      {!isOrbPlaying && (
+      {!isPortfolioPlaying && (
         <motion.div
           key="play-btn"
           initial={{ opacity: 0, y: 8 }}
@@ -17,7 +17,7 @@ export function PlayAmbience() {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <motion.button
-            onClick={() => play(`${import.meta.env.BASE_URL}audio/game-film/atomic.mp3`, "orb", "Atomic")}
+            onClick={() => play(`${import.meta.env.BASE_URL}audio/game-film/atomic.mp3`, "portfolio", "Atomic")}
             whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.08)" }}
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}

@@ -236,7 +236,7 @@ export function MusicOrb() {
 
         <motion.div
           id="music-orb-btn"
-          className="absolute z-10 rounded-full flex items-center justify-center border border-white/10 shadow-xl backdrop-blur-xl focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+          className="absolute z-10 rounded-full flex items-center justify-center glass-panel focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
           style={{
             width: `${orbSize}px`,
             height: `${orbSize}px`,
@@ -249,15 +249,14 @@ export function MusicOrb() {
                   left: `calc(50% - ${orbSize / 2}px)`,
                   top: `calc(${(1 - volume) * (200 - orbSize)}px)`,
                 }),
-            background: "color-mix(in oklch, var(--background) 45%, transparent)",
             pointerEvents: "auto",
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           animate={{
             boxShadow: isAnyPlaying
-              ? "0 0 20px color-mix(in oklch, var(--primary) 40%, transparent)"
-              : "none",
+              ? "0 0 20px color-mix(in oklch, var(--primary) 40%, transparent), 0 12px 40px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.10)"
+              : "0 12px 40px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.10)",
           }}
         >
           <div

@@ -6,8 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Manrope", sans-serif;
-  --font-display: "Sora", sans-serif;
+  --font-sans: "Work Sans", sans-serif;
+  --font-display: "Josefin Sans", sans-serif;
   --font-brand: "Audiowide", sans-serif;
 
   --color-background: var(--background);
@@ -94,26 +94,6 @@
   --destructive-foreground: oklch(1.0 0 0);
 }
 
-.dark {
-  --background: oklch(0.16 0.03 260);
-  --foreground: oklch(0.96 0.01 240);
-  --primary: oklch(0.82 0.11 55);
-  --primary-foreground: oklch(0.18 0.06 55);
-  --secondary: oklch(0.85 0.10 260);
-  --secondary-foreground: oklch(0.18 0.06 260);
-  --accent: oklch(0.87 0.12 80);
-  --accent-foreground: oklch(0.18 0.06 80);
-  --card: oklch(0.20 0.03 260);
-  --card-foreground: oklch(0.96 0.01 240);
-  --muted: oklch(0.25 0.03 260);
-  --muted-foreground: oklch(0.72 0.04 250);
-  --border: oklch(0.27 0.03 260);
-  --input: oklch(0.27 0.03 260);
-  --ring: oklch(0.82 0.11 55);
-  --destructive: oklch(0.65 0.22 25);
-  --destructive-foreground: oklch(1.0 0 0);
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -162,7 +142,61 @@
   ::-webkit-scrollbar-thumb:hover {
     background-color: var(--muted-foreground);
   }
+
+  /* Range input track fill */
+  input[type="range"] {
+    --progress: 0%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      var(--primary) 0%,
+      var(--primary) var(--progress),
+      var(--border) var(--progress)
+    );
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  input[type="range"]::-moz-range-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--primary);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--foreground);
+    margin-top: -5px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: none;
+    background: var(--foreground);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
 }
+
+
 
 @media (prefers-reduced-motion: reduce) {
   *,

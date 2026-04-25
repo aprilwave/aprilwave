@@ -10,7 +10,7 @@ const links = [
 ];
 
 export function Navbar() {
-  const [location, navigate] = useLocation();
+  const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [heroPast, setHeroPast] = useState(false);

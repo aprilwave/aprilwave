@@ -16,8 +16,8 @@ interface AudioContextValue {
   currentTime: number;
   duration: number;
   hasPlayedAtLeastOnce: boolean;
-  play: (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void) => Promise<void>;
-  pause: () => void;
+  play: (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void, immediate?: boolean) => Promise<void>;
+  pause: (immediate?: boolean) => void;
   togglePlay: (source?: "orb" | "portfolio") => Promise<boolean>;
   seek: (time: number) => void;
   setVolume: (v: number) => void;
@@ -148,11 +148,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }, FADE_DURATION);
   }, [fadeTo, stopTimeTracking]);
 
-  const play = useCallback(async (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void) => {
+  const play = useCallback(async (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void, immediate?: boolean) => {
     ensureAudioContext();
 
     const el = audioRef.current;
-    const isSameElement = el && el.src === src;
+    const isSameElement = el && el.getAttribute("src") === src;
 
     if (playSource && playSource !== source) {
       stopCurrentSource();
@@ -168,8 +168,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       connectAudio(audio);
     }
 
-    audio.volume = Math.pow(volume, 2);
-    audio.load();
+    if (!isSameElement) {
+      audio.volume = Math.pow(volume, 2);
+      audio.load();
+    }
 
     setCurrentTrack(title);
 
@@ -181,28 +183,43 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      audio.volume = 0;
+      const targetVol = Math.pow(volume, 2);
+      audio.volume = immediate ? targetVol : 0;
       await audio.play();
       setIsPlaying(true);
       setPlaySource(source);
       setHasPlayedAtLeastOnce(true);
-      fadeTo(Math.pow(volume, 2));
-      startTimeTracking();
+      if (immediate) {
+        startTimeTracking();
+      } else {
+        fadeTo(targetVol);
+        startTimeTracking();
+      }
     } catch {
       // autoplay blocked
     }
   }, [playSource, stopCurrentSource, ensureAudioContext, connectAudio, volume, fadeTo, startTimeTracking]);
 
-  const pause = useCallback(() => {
-    fadeTo(0);
-    stopTimeTracking();
-    setTimeout(() => {
+  const pause = useCallback((immediate?: boolean) => {
+    if (immediate) {
+      if (fadeRef.current) clearInterval(fadeRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
       }
+      stopTimeTracking();
       setIsPlaying(false);
       setPlaySource(null);
-    }, FADE_DURATION);
+    } else {
+      fadeTo(0);
+      stopTimeTracking();
+      setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        setIsPlaying(false);
+        setPlaySource(null);
+      }, FADE_DURATION);
+    }
   }, [fadeTo, stopTimeTracking]);
 
   const togglePlay = useCallback(async (source: "orb" | "portfolio" = "orb") => {

@@ -12,14 +12,16 @@ export function AmbientBlobs() {
 
   useEffect(() => {
     const blobs = containerRef.current?.querySelectorAll<HTMLDivElement>(".ambient-blob");
-    if (!blobs) return;
+    if (!blobs || blobs.length === 0) return;
+
+    const blobArray = Array.from(blobs);
 
     let start: number | null = null;
     function frame(ts: number) {
       if (start === null) start = ts;
       const t = ts - start;
 
-      blobs.forEach((blob, i) => {
+      blobArray.forEach((blob, i) => {
         const config = BLOBS[i];
         const dx = Math.sin(t * config.speed + config.phase) * 8;
         const dy = Math.cos(t * config.speed * 0.7 + config.phase) * 6;
