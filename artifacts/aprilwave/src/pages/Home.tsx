@@ -85,7 +85,7 @@ export default function Home() {
 
                 <motion.p
                   variants={fadeUp}
-                  className="text-sm md:text-base text-foreground/70 mb-10 leading-relaxed tracking-wide max-w-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="text-sm md:text-base text-foreground/70 mb-10 leading-relaxed tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
                 >
                   Music Producer · Composer · Game Audio & Synth Sound Designer
                 </motion.p>
