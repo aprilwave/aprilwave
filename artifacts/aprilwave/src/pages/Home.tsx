@@ -85,7 +85,8 @@ export default function Home() {
 
                 <motion.p
                   variants={fadeUp}
-                  className="text-sm md:text-base text-foreground/70 mb-10 leading-relaxed tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
+                  style={{ fontSize: "clamp(0.6rem, 2.8vw, 1rem)" }}
+                  className="text-foreground/70 mb-10 leading-relaxed tracking-wide whitespace-nowrap"
                 >
                   Music Producer · Composer · Game Audio & Synth Sound Designer
                 </motion.p>
