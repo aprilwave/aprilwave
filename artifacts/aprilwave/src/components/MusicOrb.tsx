@@ -104,8 +104,11 @@ export function MusicOrb() {
   };
 
   return (
-    <div
+    <motion.div
       className="fixed z-[60] select-none group"
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 120, damping: 14 }}
       style={
         isMobileCurrent
           ? {
@@ -339,6 +342,6 @@ export function MusicOrb() {
           </AnimatePresence>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

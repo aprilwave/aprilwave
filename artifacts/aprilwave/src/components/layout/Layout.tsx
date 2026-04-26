@@ -4,8 +4,14 @@ import { GlowLine } from "@/components/GlowLine";
 import { MusicOrb } from "@/components/MusicOrb";
 import { AmbientBlobs } from "@/components/AmbientBlobs";
 import { AudioProvider } from "@/context/AudioContext";
+import { useAudio } from "@/context/AudioContext";
 import { GlobalShortcuts } from "./GlobalShortcuts";
 import { ReactNode } from "react";
+
+function MusicOrbWrapper() {
+  const { hasPlayedAtLeastOnce } = useAudio();
+  return hasPlayedAtLeastOnce ? <MusicOrb /> : null;
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -22,7 +28,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <AmbientBlobs />
 
         <Navbar />
-        <MusicOrb />
+        <MusicOrbWrapper />
         <main id="main-content" className="flex-1 w-full relative z-10">
           {children}
         </main>
