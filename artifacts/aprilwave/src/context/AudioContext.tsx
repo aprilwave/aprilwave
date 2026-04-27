@@ -10,19 +10,19 @@ import {
 
 interface AudioContextValue {
   isPlaying: boolean;
-  playSource: "orb" | "portfolio" | null;
+  playSource: "orb" | "portfolio" | "preset" | null;
   volume: number;
   currentTrack: string;
   currentTime: number;
   duration: number;
   hasPlayedAtLeastOnce: boolean;
-  play: (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void, immediate?: boolean) => Promise<void>;
+  play: (src: string, source: "orb" | "portfolio" | "preset", title: string, onEnded?: () => void, immediate?: boolean) => Promise<void>;
   pause: (immediate?: boolean) => void;
-  togglePlay: (source?: "orb" | "portfolio") => Promise<boolean>;
+  togglePlay: (source?: "orb" | "portfolio" | "preset") => Promise<boolean>;
   seek: (time: number) => void;
   setVolume: (v: number) => void;
   setCurrentTrack: (track: string) => void;
-  switchSource: (source: "orb" | "portfolio") => void;
+  switchSource: (source: "orb" | "portfolio" | "preset") => void;
   getFrequencyData: () => Uint8Array;
 }
 
@@ -50,7 +50,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const currentTimeRef = useRef<number>(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playSource, setPlaySource] = useState<"orb" | "portfolio" | null>(null);
+  const [playSource, setPlaySource] = useState<"orb" | "portfolio" | "preset" | null>(null);
   const [hasPlayedAtLeastOnce, setHasPlayedAtLeastOnce] = useState(false);
   const [volume, _setVolume] = useState(0.75);
   const [currentTrack, setCurrentTrack] = useState("Atomic");
@@ -148,7 +148,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }, FADE_DURATION);
   }, [fadeTo, stopTimeTracking]);
 
-  const play = useCallback(async (src: string, source: "orb" | "portfolio", title: string, onEnded?: () => void, immediate?: boolean) => {
+  const play = useCallback(async (src: string, source: "orb" | "portfolio" | "preset", title: string, onEnded?: () => void, immediate?: boolean) => {
     ensureAudioContext();
 
     const el = audioRef.current;
@@ -222,7 +222,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [fadeTo, stopTimeTracking]);
 
-  const togglePlay = useCallback(async (source: "orb" | "portfolio" = "orb") => {
+  const togglePlay = useCallback(async (source: "orb" | "portfolio" | "preset" = "orb") => {
     const el = audioRef.current;
     if (!el) return false;
 
@@ -285,7 +285,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setCurrentTrack(track);
   }, []);
 
-  const switchSource = useCallback((source: "orb" | "portfolio") => {
+  const switchSource = useCallback((source: "orb" | "portfolio" | "preset") => {
     setPlaySource(source);
   }, []);
 

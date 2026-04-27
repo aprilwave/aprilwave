@@ -38,10 +38,12 @@ interface WaveformSeekBarProps {
   src: string;
   currentTime: number;
   duration: number;
-  onSeek: (time: number) => void;
+  onSeek?: (time: number) => void;
+  readonly?: boolean;
+  compact?: boolean;
 }
 
-export function WaveformSeekBar({ src, currentTime, duration, onSeek }: WaveformSeekBarProps) {
+export function WaveformSeekBar({ src, currentTime, duration, onSeek, readonly = false, compact = false }: WaveformSeekBarProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [peaks, setPeaks] = useState<number[] | null>(null);
@@ -114,17 +116,18 @@ export function WaveformSeekBar({ src, currentTime, duration, onSeek }: Waveform
     const observer = new ResizeObserver(() => draw());
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [draw]);
+  }, []);
 
   const seekFromEvent = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     const canvas = canvasRef.current;
-    if (!canvas || duration <= 0) return;
+    if (!canvas || duration <= 0 || !onSeek) return;
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     onSeek(Math.max(0, Math.min(duration, x * duration)));
   }, [duration, onSeek]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (readonly) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
     seekFromEvent(e);
@@ -139,8 +142,12 @@ export function WaveformSeekBar({ src, currentTime, duration, onSeek }: Waveform
     setIsDragging(false);
   };
 
+  const heightClass = compact ? "h-12" : "h-16";
+
+  const containerClasses = `w-full ${heightClass} ${readonly ? "cursor-default pointer-events-none" : "cursor-pointer"} touch-none select-none`;
+
   return (
-    <div ref={containerRef} className="w-full h-12 cursor-pointer touch-none select-none">
+    <div ref={containerRef} className={containerClasses}>
       <canvas
         ref={canvasRef}
         className="w-full h-full"
